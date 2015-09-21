@@ -13,27 +13,6 @@ public class MyBot
 	// starting point, or you can throw it out entirely and replace it with
 	// your own. Check out the tutorials and articles on the contest website at
 	// http://www.ai-contest.com/resources.
-
-		static class TrialDefenseMission {
-	
-		public TrialDefenseMission (int planetID, int numShips) {
-			this.planetID = planetID;
-			this.numShips = numShips;
-		}
-		
-		public int PlanetID() {
-			return planetID;
-		}
-		
-		public int NumShips() {
-			return numShips;
-		}
-		  
-		private int planetID;
-		private int numShips;
-		
-	}
-	
 	
 	static class DefenseTasks implements Comparable<Object> {
 	
@@ -285,7 +264,7 @@ public class MyBot
 		int lastPlanetID = 100;
 		boolean taskUnfilled = false;
 		for (DefenseTasks dt : currentDefenseTasks) {
-			List<TrialDefenseMission> defenseMission = new ArrayList<TrialDefenseMission>();
+			HashMap<Integer,Integer> defenseMission = new HashMap<>();
 			int requiredShips = dt.NumShips();
 			if (lastPlanetID == dt.PlanetID() && taskUnfilled == true) {
 				continue;
@@ -296,20 +275,20 @@ public class MyBot
 				if ((pw.Distance(pr, dt.PlanetID()) <= dt.TurnsRemaining()) && planReserve.get(pr) > 0 && requiredShips > 0) {
 					if (requiredShips >= planReserve.get(pr)) {
 						requiredShips -= planReserve.get(pr);
-						defenseMission.add(new TrialDefenseMission(pr, planReserve.get(pr)));
+						defenseMission.put(pr, planReserve.get(pr));
 					}
 					else {
-						defenseMission.add(new TrialDefenseMission(pr, requiredShips));
+						defenseMission.put(pr, requiredShips);
 						requiredShips = 0;
 					}
 				}
 			}
 			if (requiredShips == 0) {
-				for (TrialDefenseMission dm : defenseMission) {
-					pw.IssueOrder(pw.GetPlanet(dm.PlanetID()), pw.GetPlanet(dt.PlanetID()), dm.NumShips());
+				for (int dm : defenseMission.keySet()) {
+					pw.IssueOrder(pw.GetPlanet(dm), pw.GetPlanet(dt.PlanetID()), defenseMission.get(dm));
 					for (int pr : planReserve.keySet()) {
-						if (pr == dm.PlanetID()) {
-							planReserve.put(pr,planReserve.get(pr)-dm.NumShips());
+						if (pr == dm) {
+							planReserve.put(pr,planReserve.get(pr)-defenseMission.get(dm));
 						}
 					}
 				}
