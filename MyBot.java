@@ -13,19 +13,18 @@ public class MyBot {
     // http://www.ai-contest.com/resources.
 
     public static  ArrayList<Planet> knapsack01(ArrayList<Planet> planets, int maxWeight) {
-            ArrayList<int> weights;
-            ArrayList<int> values;
+            ArrayList<Integer> weights= new ArrayList<Integer>();
+            ArrayList<Integer> values= new ArrayList<Integer>();
            
             // solve 0-1 knapsack problem
-            for (int it = 0; it != planets.size(); ++it) {
+            for (Planet p : planets) {
                 // here weights and values are numShips and growthRate respectively
-                // you can change this to something more complex if you like...
-                Planet p = *it;       
-                weights.push_back(p.NumShips() + 1);
-                values.push_back(p.GrowthRate());
+                // you can change this to something more complex if you like...      
+                weights.add(p.NumShips() + 1);
+                values.add(p.GrowthRate());
             }
            
-            int K[weights.size()+1][maxWeight];
+            int[][] K= new int[weights.size()+1][maxWeight];
            
             for (int i = 0; i < maxWeight; i++) {
                 K[0][i] = 0;
@@ -34,32 +33,53 @@ public class MyBot {
             for (int k = 1; k <= weights.size(); k++) {
                 for (int y = 1; y <= maxWeight; y++) {
                
-                    if (y < weights[k-1]){
+                    if (y < weights.get(k-1)){
                       K[k][y-1] = K[k-1][y-1];
                     } 
-                    else if (y > weights[k-1]){
-                      K[k][y-1] = max( K[k-1][y-1], K[k-1][y-1-weights[k-1]] + values[k-1]);
+                    else if (y > weights.get(k-1)){
+                      K[k][y-1] = Math.max( K[k-1][y-1], K[k-1][y-1-weights.get(k-1)] + values.get(k-1));
                     }
                     else
-                      K[k][y-1] = max(K[k-1][y-1], values[k-1]);
+                      K[k][y-1] = Math.max(K[k-1][y-1], values.get(k-1));
                 }
             }
 
             // get the planets in the solution
             int i = weights.size();
             int currentW = maxWeight-1;
-            ArrayList<Planet> markedPlanets;
+            ArrayList<Planet> markedPlanets= new ArrayList<Planet>();
            
             while ((i > 0) && (currentW >= 0)) {
                 if (((i == 0) && (K[i][currentW] > 0)) || (K[i][currentW] != K[i-1][currentW])) {
-                    markedPlanets.push_back(planets[i-1]);
-                    currentW = currentW - weights[i-1];
+                    markedPlanets.add(planets.get(i-1));
+                    currentW = currentW - weights.get(i-1);
                 }
                 i--;
             }
             return markedPlanets;
     }
- void DoTurn(PlanetWars pw) {
+    
+    private static int turnCounter = 0;
+ static void DoTurn(PlanetWars pw) {
+	 turnCounter++;
+	 if(turnCounter==10){// First turn knapsacking problem
+		 //Calculate available ships
+		 Planet my=pw.MyPlanets().get(0);
+		 Planet enemy = pw.EnemyPlanets().get(0);
+		 int maxWeight=pw.Distance(my.PlanetID(), enemy.PlanetID())*my.GrowthRate();
+		 ArrayList<Planet> planets= new ArrayList<Planet>();
+		 for(Planet p1: pw.Planets())
+			 if(pw.Distance(p1.PlanetID(), my.PlanetID())< pw.Distance(p1.PlanetID(), enemy.PlanetID()))
+				 planets.add(p1);
+		 
+		 ArrayList<Planet> toCapture = knapsack01(planets, maxWeight);
+		 for(Planet p: toCapture){
+			 pw.IssueOrder(my, p, p.NumShips()+1);
+		 }
+			 
+				 
+		 
+	 }
 	// (1) If we currently have a fleet in flight, just do nothing.
 	if (pw.MyFleets().size() >= 1) {
 	    return;
