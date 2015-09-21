@@ -367,6 +367,34 @@ public class MyBot
 				}
 			}
 		}
+		//find strongest my planet
+		PlanetReserve source = null;
+		double sourceScore = Double.MIN_VALUE;
+		for (PlanetReserve p : currentPlanetReserves) {
+		    double score = (double)p.NumShips();
+		    if (score > sourceScore) {
+			sourceScore = score;
+			source = p;
+		    }
+		}
+		// (3) Find the weakest enemy or neutral planet.
+		Planet dest = null;
+		double destScore = Double.MIN_VALUE;
+		List<Planet> candidates = pw.NotMyPlanets();
+
+		for (Planet p : candidates) {
+		    double score = (double)(1 + p.GrowthRate()) / p.NumShips();
+		    if (score > destScore) {
+			destScore = score;
+			dest = p;
+		    }
+		}
+		// (4) Send half the ships from my strongest planet to the weakest
+		// planet that I do not own.
+		if (source != null && dest != null) {
+		    int numShips = source.NumShips() / 2;
+		    pw.IssueOrder(source.planetID, dest.PlanetID(), numShips);
+		}
 
 		}
 	}
