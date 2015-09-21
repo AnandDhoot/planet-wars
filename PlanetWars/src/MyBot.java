@@ -34,33 +34,6 @@ public class MyBot
 		
 	}
 	
-	static class PlanetReserve {
-	
-		public PlanetReserve (int planetID, int numShips) {
-			this.planetID = planetID;
-			this.numShips = numShips;
-		}
-		
-		public int PlanetID() {
-			return planetID;
-		}
-		
-		public int NumShips() {
-			return numShips;
-		}
-		
-		public void AddShips(int amount) {
-			numShips += amount;
-		}
-				
-		public void RemoveShips(int amount) {
-			numShips -= amount;
-		}
-		  
-		private int planetID;
-		private int numShips;
-		
-	}
 	
 	static class DefenseTasks implements Comparable<Object> {
 	
@@ -225,8 +198,7 @@ public class MyBot
 		{
 			// (1) If we currently have a fleet in flight, just do nothing.
 		List<DefenseTasks> currentDefenseTasks = new ArrayList<DefenseTasks>();
-		List<PlanetReserve> currentPlanetReserves = new ArrayList<PlanetReserve>();
-		
+		HashMap<Integer, Integer> planReserve = new HashMap<Integer,Integer>();
 		for (Planet p : pw.MyPlanets()) {
 	
 			List<PlanetThreat> incomingThreats = new ArrayList<PlanetThreat>();
@@ -297,11 +269,11 @@ public class MyBot
 					turnProcessed = turnsRemaining;
 				}
 				if (startingExcessShips > 0) {
-					currentPlanetReserves.add(new PlanetReserve(p.PlanetID(), startingExcessShips));
+					planReserve.put(p.PlanetID(), startingExcessShips);
 				}
 			}
 			else {
-				currentPlanetReserves.add(new PlanetReserve(p.PlanetID(), p.NumShips()));
+				planReserve.put(p.PlanetID(), p.NumShips());
 			}
 		}
 		
@@ -320,14 +292,14 @@ public class MyBot
 			}
 			lastPlanetID = dt.PlanetID();
 			
-			for (PlanetReserve pr : currentPlanetReserves) {
-				if ((pw.Distance(pr.PlanetID(), dt.PlanetID()) <= dt.TurnsRemaining()) && pr.NumShips() > 0 && requiredShips > 0) {
-					if (requiredShips >= pr.NumShips()) {
-						requiredShips -= pr.NumShips();
-						defenseMission.add(new TrialDefenseMission(pr.PlanetID(), pr.NumShips()));
+			for (int pr : planReserve.keySet()) {
+				if ((pw.Distance(pr, dt.PlanetID()) <= dt.TurnsRemaining()) && planReserve.get(pr) > 0 && requiredShips > 0) {
+					if (requiredShips >= planReserve.get(pr)) {
+						requiredShips -= planReserve.get(pr);
+						defenseMission.add(new TrialDefenseMission(pr, planReserve.get(pr)));
 					}
 					else {
-						defenseMission.add(new TrialDefenseMission(pr.PlanetID(), requiredShips));
+						defenseMission.add(new TrialDefenseMission(pr, requiredShips));
 						requiredShips = 0;
 					}
 				}
@@ -335,9 +307,9 @@ public class MyBot
 			if (requiredShips == 0) {
 				for (TrialDefenseMission dm : defenseMission) {
 					pw.IssueOrder(pw.GetPlanet(dm.PlanetID()), pw.GetPlanet(dt.PlanetID()), dm.NumShips());
-					for (PlanetReserve pr : currentPlanetReserves) {
-						if (pr.PlanetID() == dm.PlanetID()) {
-							pr.RemoveShips(dm.NumShips());
+					for (int pr : planReserve.keySet()) {
+						if (pr == dm.PlanetID()) {
+							planReserve.put(pr,planReserve.get(pr)-dm.NumShips());
 						}
 					}
 				}
@@ -353,25 +325,20 @@ public class MyBot
 		
 		for (DefenseTasks dt : currentDefenseTasks) {
 			if (dt.NumShips() > 0 && dt.TurnsRemaining() == 1) {
-				boolean reserveFound = false;
 				Planet p = pw.GetPlanet(dt.PlanetID());
-				for (PlanetReserve pr : currentPlanetReserves) {
-					if (dt.PlanetID() == pr.PlanetID()) {
-						pr.AddShips(p.NumShips());
-						reserveFound = true;
-						break;
-					}
+				if(planReserve.containsKey(dt.planetID)){
+					planReserve.put(dt.planetID, planReserve.get(dt.planetID)+p.NumShips());
 				}
-				if (reserveFound == false) {	
-					currentPlanetReserves.add(new PlanetReserve(dt.PlanetID(), p.NumShips()));
+				else{
+					planReserve.put(dt.planetID, p.NumShips());
 				}
 			}
 		}
 		//find strongest my planet
-		PlanetReserve source = null;
+		int source = -1;
 		double sourceScore = Double.MIN_VALUE;
-		for (PlanetReserve p : currentPlanetReserves) {
-		    double score = (double)p.NumShips();
+		for (int p : planReserve.keySet()) {
+		    double score = (double)planReserve.get(p);
 		    if (score > sourceScore) {
 			sourceScore = score;
 			source = p;
@@ -391,9 +358,9 @@ public class MyBot
 		}
 		// (4) Send half the ships from my strongest planet to the weakest
 		// planet that I do not own.
-		if (source != null && dest != null) {
-		    int numShips = source.NumShips() / 2;
-		    pw.IssueOrder(source.planetID, dest.PlanetID(), numShips);
+		if (source != -1 && dest != null) {
+		    int numShips =  planReserve.get(source);
+		    pw.IssueOrder(source, dest.PlanetID(), numShips);
 		}
 
 		}
