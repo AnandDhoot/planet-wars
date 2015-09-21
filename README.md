@@ -1,8 +1,11 @@
 # planet-wars
 
-Eclipse project located at ./PlanetWars  
-Generate the executable in ./tools/mybot.jar  
-Navigate to ./tools  
-Run on terminal as -  
+Eclipse project located at ./PlanetWars
+Generate the executable in ./tools/mybot.jar
+Navigate to ./tools
 
-java -jar tools/PlayGame.jar maps/map7.txt 1000 1000 log.txt "java -jar ./example_bots/RageBot.jar" "java -jar ./mybot.jar" | python visualiser/visualize_localy.py
+Scripts
+
+"bash run.sh 10 RageBot" to run mybot.jar against RageBot on map 10 
+"bash run_all.sh 0 RageBot" to run on all maps and give aggregate results
+"view.sh 10" to visualize the result of the last run on map 10 using the above scripts.(They cache their results)

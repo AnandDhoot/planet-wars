@@ -28,3 +28,5 @@ lost=0
     avg=$(( avg/(100-lost) ))
     echo "Average Winning Turns: $avg "
     echo "Number of losses: $lost"
+
+    
