@@ -335,6 +335,13 @@ public class MyBot
 			}
 		}
 		//find strongest my planet
+		
+	 	boolean attackMode = false;
+	 	if (pw.NumShips(1) > pw.NumShips(2)) {
+	 		attackMode = true;
+	 	}
+	 	// (1) If we current have more tha numFleets fleets in flight, just do
+	 	// nothing until at least one of the fleets arrives.
 		int source = -1;
 		double sourceScore = Double.MIN_VALUE;
 		for (int p : planReserve.keySet()) {
@@ -348,6 +355,10 @@ public class MyBot
 		Planet dest = null;
 		double destScore = Double.MIN_VALUE;
 		List<Planet> candidates = pw.NotMyPlanets();
+		if(attackMode){
+			candidates=pw.EnemyPlanets();
+	
+		}
 
 		for (Planet p : candidates) {
 		    double score = (double)(1 + p.GrowthRate()) / p.NumShips();
