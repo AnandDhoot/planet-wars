@@ -49,7 +49,47 @@ public class MyBot
 		private int numShips;
 		
 	}
-	
+	static class PlanetState {
+		
+		int planetID;
+		int owner;
+		int numShips;
+		
+		public PlanetState(int id,int owner,int num){
+			this.planetID=id;
+			this.owner=owner;
+			this.numShips=num;
+		}
+		
+	}
+	static class PlanetTimeline{
+		PlanetState[] Timeline;
+		public PlanetTimeline(PlanetState s,int horizon){
+			Timeline = new PlanetState[horizon];
+			for(int i=0;i<horizon;i++)
+				Timeline[i]= s;
+			
+		}
+		
+	}
+	static class WorldFuture {
+		HashMap<Integer,PlanetTimeline> Future; // planetId to timeline map
+		
+		public WorldFuture(PlanetWars pw){
+			for (Planet p : pw.NotMyPlanets()){
+				PlanetTimeline tl = new PlanetTimeline(new PlanetState(p.PlanetID(),p.Owner(), p.NumShips()), 100);
+				for(Fleet f : pw.Fleets())//assuming sorted by turnsremaining
+					if(f.DestinationPlanet()==p.PlanetID()){
+						if(f.Owner()==tl.Timeline[f.TurnsRemaining()].owner)
+							tl.Timeline[f.TurnsRemaining()].numShips+=f.NumShips();
+					}
+				
+			}
+			
+		}
+		
+		
+	}
 	static class PlanetThreat implements Comparable<Object> {
 	
 		public PlanetThreat (int turnsRemaining, int numShips) {
@@ -315,44 +355,25 @@ public class MyBot
 		}
 		//find strongest my planet
 		
-	 	boolean attackMode = false;
-	 	if (pw.NumShips(1) > pw.NumShips(2)) {
-	 		attackMode = true;
-	 	}
 	 	// (1) If we current have more tha numFleets fleets in flight, just do
 	 	// nothing until at least one of the fleets arrives.
-		int source = -1;
-		double sourceScore = Double.MIN_VALUE;
-		for (int p : planReserve.keySet()) {
-		    double score = (double)planReserve.get(p);
-		    if (score > sourceScore) {
-			sourceScore = score;
-			source = p;
+		for (int source : planReserve.keySet()) {
+		    if (planReserve.get(source) < 10 * pw.GetPlanet(source).GrowthRate()) {
+			continue;
+		    }
+		    Planet dest = null;
+		    int bestDistance = 999999;
+		    for (Planet p : pw.EnemyPlanets()) {
+			int dist = pw.Distance(source, p.PlanetID());
+			if (dist < bestDistance) {
+			    bestDistance = dist;
+			    dest = p;
+			}
+		    }
+		    if (dest != null) {
+			pw.IssueOrder(source, dest.PlanetID(), planReserve.get(source));
 		    }
 		}
-		// (3) Find the weakest enemy or neutral planet.
-		Planet dest = null;
-		double destScore = Double.MIN_VALUE;
-		List<Planet> candidates = pw.NotMyPlanets();
-		if(attackMode){
-			candidates=pw.EnemyPlanets();
-	
-		}
-
-		for (Planet p : candidates) {
-		    double score = (double)(1 + p.GrowthRate()) / p.NumShips();
-		    if (score > destScore) {
-			destScore = score;
-			dest = p;
-		    }
-		}
-		// (4) Send half the ships from my strongest planet to the weakest
-		// planet that I do not own.
-		if (source != -1 && dest != null) {
-		    int numShips =  planReserve.get(source);
-		    pw.IssueOrder(source, dest.PlanetID(), numShips);
-		}
-
 		}
 	}
 
