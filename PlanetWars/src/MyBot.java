@@ -82,9 +82,11 @@ public class MyBot
 					if(f.DestinationPlanet()==p.PlanetID()){
 						if(f.Owner()==tl.Timeline[f.TurnsRemaining()].owner)
 							tl.Timeline[f.TurnsRemaining()].numShips+=f.NumShips();
+						//TODO Complete this constructor - Dhoot
 					}
 				
 			}
+			//TODO add required interfacing functions - Dhoot
 			
 		}
 		
@@ -130,7 +132,7 @@ public class MyBot
 		for (Planet p : planets)
 		{
 			// here weights and values are numShips and growthRate respectively
-			// you can change this to something more complex if you like...
+			// TODO change value to also take into account distance and test
 			weights.add(p.NumShips() + 1);
 			values.add(p.GrowthRate());
 		}
@@ -199,7 +201,7 @@ public class MyBot
 
 			ArrayList<Planet> planets = new ArrayList<Planet>();
 			for (Planet p1 : pw.Planets())
-				if (pw.Distance(p1.PlanetID(), my.PlanetID()) < pw.Distance(
+				if (pw.Distance(p1.PlanetID(), my.PlanetID()) <= pw.Distance(
 						p1.PlanetID(), enemy.PlanetID()))
 					planets.add(p1);
 
@@ -301,6 +303,8 @@ public class MyBot
 		// could be improved by prioritizing the defense of different planets based on their value
 		
 		Collections.sort(currentDefenseTasks);
+		//Currently priority to closest attack
+		//TODO Change to ROI or some other evaluation fxn
 		int lastPlanetID = 100;
 		boolean taskUnfilled = false;
 		for (DefenseTasks dt : currentDefenseTasks) {
@@ -312,6 +316,7 @@ public class MyBot
 			lastPlanetID = dt.PlanetID();
 			
 			for (int pr : planReserve.keySet()) {
+				// TODO - Give priority to better future defendable planets using potentials,influence maps etc.
 				if ((pw.Distance(pr, dt.PlanetID()) <= dt.TurnsRemaining()) && planReserve.get(pr) > 0 && requiredShips > 0) {
 					if (requiredShips >= planReserve.get(pr)) {
 						requiredShips -= planReserve.get(pr);
@@ -353,10 +358,8 @@ public class MyBot
 				}
 			}
 		}
-		//find strongest my planet
-		
-	 	// (1) If we current have more tha numFleets fleets in flight, just do
-	 	// nothing until at least one of the fleets arrives.
+		// Rage Attack
+		// TODO Replace with ROI attacks based on Timeline - Main Work
 		for (int source : planReserve.keySet()) {
 		    if (planReserve.get(source) < 10 * pw.GetPlanet(source).GrowthRate()) {
 			continue;
@@ -374,7 +377,9 @@ public class MyBot
 			pw.IssueOrder(source, dest.PlanetID(), planReserve.get(source));
 		    }
 		}
+		//TODO Move ships to frontlines - Charmi
 		}
+		//TODO Advanced Move Splitter 
 	}
 
 	public static void main(String[] args)
