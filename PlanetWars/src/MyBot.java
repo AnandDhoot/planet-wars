@@ -3,123 +3,83 @@ import java.util.*;
 
 public class MyBot
 {
-	// The DoTurn function is where your code goes. The PlanetWars object
-	// contains the state of the game, including information about all planets
-	// and fleets that currently exist. Inside this function, you issue orders
-	// using the pw.IssueOrder() function. For example, to send 10 ships from
-	// planet 3 to planet 8, you would say pw.IssueOrder(3, 8, 10).
-	//
-	// There is already a basic strategy in place here. You can use it as a
-	// starting point, or you can throw it out entirely and replace it with
-	// your own. Check out the tutorials and articles on the contest website at
-	// http://www.ai-contest.com/resources.
-	
-	static class DefenseTasks implements Comparable<Object> {
-	
-		public DefenseTasks (int planetID, int turnsRemaining, int numShips) {
+	static class DefenseTasks implements Comparable<Object>
+	{
+
+		public DefenseTasks(int planetID, int turnsRemaining, int numShips)
+		{
 			this.planetID = planetID;
 			this.turnsRemaining = turnsRemaining;
 			this.numShips = numShips;
 		}
-		
-		public int PlanetID() {
+
+		public int PlanetID()
+		{
 			return planetID;
 		}
-		
-		public int TurnsRemaining() {
+
+		public int TurnsRemaining()
+		{
 			return turnsRemaining;
 		}
-		
-		public int NumShips() {
+
+		public int NumShips()
+		{
 			return numShips;
 		}
-		
-		public void RemoveShips(int amount) {
+
+		public void RemoveShips(int amount)
+		{
 			numShips -= amount;
 		}
-		
-		public int compareTo(Object obj) {
+
+		public int compareTo(Object obj)
+		{
 			DefenseTasks anotherTask = (DefenseTasks) obj;
-			int anotherTaskTurn = anotherTask.TurnsRemaining();  
+			int anotherTaskTurn = anotherTask.TurnsRemaining();
 			return this.turnsRemaining - anotherTaskTurn;
 		}
-		
+
 		private int planetID;
 		private int turnsRemaining;
 		private int numShips;
-		
+
 	}
-	static class PlanetState {
-		
-		int planetID;
-		int owner;
-		int numShips;
-		
-		public PlanetState(int id,int owner,int num){
-			this.planetID=id;
-			this.owner=owner;
-			this.numShips=num;
-		}
-		
-	}
-	static class PlanetTimeline{
-		PlanetState[] Timeline;
-		public PlanetTimeline(PlanetState s,int horizon){
-			Timeline = new PlanetState[horizon];
-			for(int i=0;i<horizon;i++)
-				Timeline[i]= s;
-			
-		}
-		
-	}
-	static class WorldFuture {
-		HashMap<Integer,PlanetTimeline> Future; // planetId to timeline map
-		
-		public WorldFuture(PlanetWars pw){
-			for (Planet p : pw.NotMyPlanets()){
-				PlanetTimeline tl = new PlanetTimeline(new PlanetState(p.PlanetID(),p.Owner(), p.NumShips()), 100);
-				for(Fleet f : pw.Fleets())//assuming sorted by turnsremaining
-					if(f.DestinationPlanet()==p.PlanetID()){
-						if(f.Owner()==tl.Timeline[f.TurnsRemaining()].owner)
-							tl.Timeline[f.TurnsRemaining()].numShips+=f.NumShips();
-						//TODO Complete this constructor - Dhoot
-					}
-				
-			}
-			//TODO add required interfacing functions - Dhoot
-			
-		}
-		
-		
-	}
-	static class PlanetThreat implements Comparable<Object> {
-	
-		public PlanetThreat (int turnsRemaining, int numShips) {
+
+	static class PlanetThreat implements Comparable<Object>
+	{
+
+		public PlanetThreat(int turnsRemaining, int numShips)
+		{
 			this.turnsRemaining = turnsRemaining;
 			this.numShips = numShips;
 		}
-		
-		public int TurnsRemaining() {
+
+		public int TurnsRemaining()
+		{
 			return turnsRemaining;
 		}
-		
-		public int NumShips() {
+
+		public int NumShips()
+		{
 			return numShips;
 		}
-		
-		public void AddShips(int amount) {
+
+		public void AddShips(int amount)
+		{
 			numShips += amount;
 		}
-		
-		public int compareTo(Object obj) {
+
+		public int compareTo(Object obj)
+		{
 			PlanetThreat anotherThreat = (PlanetThreat) obj;
-			int anotherThreatTurn = anotherThreat.TurnsRemaining();  
+			int anotherThreatTurn = anotherThreat.TurnsRemaining();
 			return this.turnsRemaining - anotherThreatTurn;
 		}
-  
+
 		private int turnsRemaining;
 		private int numShips;
-		
+
 	}
 
 	public static ArrayList<Planet> knapsack01(ArrayList<Planet> planets,
@@ -190,196 +150,257 @@ public class MyBot
 		if (turnCounter == 1)
 		{// First turn knapsacking problem
 			// Calculate available ships
-			PrintWriter out = new PrintWriter(new FileWriter("output.txt"));
-
+			
 			Planet my = pw.MyPlanets().get(0);
 			Planet enemy = pw.EnemyPlanets().get(0);
-			int maxWeight = Math.min(pw.Distance(my.PlanetID(), enemy.PlanetID())
-					* my.GrowthRate(), my.NumShips());
-
-			out.println(maxWeight);
-
+			int maxWeight = Math.min(
+					pw.Distance(my.PlanetID(), enemy.PlanetID())
+							* my.GrowthRate(), my.NumShips());
+			
 			ArrayList<Planet> planets = new ArrayList<Planet>();
 			for (Planet p1 : pw.Planets())
 				if (pw.Distance(p1.PlanetID(), my.PlanetID()) <= pw.Distance(
 						p1.PlanetID(), enemy.PlanetID()))
 					planets.add(p1);
 
-			out.println("Hello");
-
 			ArrayList<Planet> toCapture = knapsack01(planets, maxWeight);
 			for (Planet p : toCapture)
 			{
 				pw.IssueOrder(my, p, p.NumShips() + 1);
-				out.println(p.PlanetID() + " " + p.NumShips());
 			}
-			out.close();
 		}
 		else
 		{
 			// (1) If we currently have a fleet in flight, just do nothing.
-		List<DefenseTasks> currentDefenseTasks = new ArrayList<DefenseTasks>();
-		HashMap<Integer, Integer> planReserve = new HashMap<Integer,Integer>();
-		for (Planet p : pw.MyPlanets()) {
-	
-			List<PlanetThreat> incomingThreats = new ArrayList<PlanetThreat>();
-			for (Fleet ef : pw.EnemyFleets()) {
-				if (p.PlanetID() == ef.DestinationPlanet()) {
-					int turnsRemaining = ef.TurnsRemaining();
-					int numShips = ef.NumShips();
-					boolean foundThreat = false;
-					for (PlanetThreat pt: incomingThreats) {
-						if (pt.TurnsRemaining() == turnsRemaining) {
-							pt.AddShips(numShips);
-							foundThreat = true;
-							break;
+			List<DefenseTasks> currentDefenseTasks = new ArrayList<DefenseTasks>();
+			HashMap<Integer, Integer> planReserve = new HashMap<Integer, Integer>();
+			for (Planet p : pw.MyPlanets())
+			{
+
+				List<PlanetThreat> incomingThreats = new ArrayList<PlanetThreat>();
+				for (Fleet ef : pw.EnemyFleets())
+				{
+					if (p.PlanetID() == ef.DestinationPlanet())
+					{
+						int turnsRemaining = ef.TurnsRemaining();
+						int numShips = ef.NumShips();
+						boolean foundThreat = false;
+						for (PlanetThreat pt : incomingThreats)
+						{
+							if (pt.TurnsRemaining() == turnsRemaining)
+							{
+								pt.AddShips(numShips);
+								foundThreat = true;
+								break;
+							}
 						}
-					}
-					if (foundThreat == false) {
-						incomingThreats.add(new PlanetThreat(turnsRemaining, numShips));
+						if (foundThreat == false)
+						{
+							incomingThreats.add(new PlanetThreat(
+									turnsRemaining, numShips));
+						}
 					}
 				}
-			}
-			if (!incomingThreats.isEmpty()) {
-				Collections.sort(incomingThreats);
-				int turnProcessed = 0;
-				int startingExcessShips = 0;
-				int currentExcessShips = 0;
-				for (PlanetThreat pt: incomingThreats) {
-					int turnsRemaining = pt.TurnsRemaining();
-					int reinforcementShips = 0;
-					for (Fleet mf : pw.MyFleets()) {
-						if (p.PlanetID() == mf.DestinationPlanet() && mf.TurnsRemaining() > turnProcessed && mf.TurnsRemaining() <= turnsRemaining) {
-							reinforcementShips += mf.NumShips();
-						}
-					}
-					if (turnProcessed == 0) {
-						reinforcementShips += (turnsRemaining * p.GrowthRate());
-						if (reinforcementShips >= pt.NumShips()) {
-							startingExcessShips = p.NumShips();
-							currentExcessShips = (reinforcementShips - pt.NumShips());
-						}
-						else {
-							if ((reinforcementShips + p.NumShips()) >= pt.NumShips()) {
-								startingExcessShips = p.NumShips() - (pt.NumShips() - reinforcementShips);
-								currentExcessShips = startingExcessShips;
+				if (!incomingThreats.isEmpty())
+				{
+					Collections.sort(incomingThreats);
+					int turnProcessed = 0;
+					int startingExcessShips = 0;
+					int currentExcessShips = 0;
+					for (PlanetThreat pt : incomingThreats)
+					{
+						int turnsRemaining = pt.TurnsRemaining();
+						int reinforcementShips = 0;
+						for (Fleet mf : pw.MyFleets())
+						{
+							if (p.PlanetID() == mf.DestinationPlanet()
+									&& mf.TurnsRemaining() > turnProcessed
+									&& mf.TurnsRemaining() <= turnsRemaining)
+							{
+								reinforcementShips += mf.NumShips();
 							}
-							else {
-								int shortfall = pt.NumShips() - (reinforcementShips + p.NumShips());
-								currentDefenseTasks.add(new DefenseTasks(p.PlanetID(), turnsRemaining, shortfall));
-							}					
 						}
-					}
-					else {
-						int homeDefense = ((turnsRemaining - turnProcessed) * p.GrowthRate()) + currentExcessShips + reinforcementShips;
-						int shortfall = pt.NumShips() - homeDefense;
-						
-						if (shortfall > 0) {
-							currentDefenseTasks.add(new DefenseTasks(p.PlanetID(), turnsRemaining, shortfall));
-							currentExcessShips = 0;
-							startingExcessShips = currentExcessShips;
-							
+						if (turnProcessed == 0)
+						{
+							reinforcementShips += (turnsRemaining * p
+									.GrowthRate());
+							if (reinforcementShips >= pt.NumShips())
+							{
+								startingExcessShips = p.NumShips();
+								currentExcessShips = (reinforcementShips - pt
+										.NumShips());
+							}
+							else
+							{
+								if ((reinforcementShips + p.NumShips()) >= pt
+										.NumShips())
+								{
+									startingExcessShips = p.NumShips()
+											- (pt.NumShips() - reinforcementShips);
+									currentExcessShips = startingExcessShips;
+								}
+								else
+								{
+									int shortfall = pt.NumShips()
+											- (reinforcementShips + p
+													.NumShips());
+									currentDefenseTasks.add(new DefenseTasks(p
+											.PlanetID(), turnsRemaining,
+											shortfall));
+								}
+							}
 						}
-						else if (shortfall <= 0) {
-							currentExcessShips = homeDefense - pt.NumShips();
-							if (startingExcessShips > currentExcessShips) {
+						else
+						{
+							int homeDefense = ((turnsRemaining - turnProcessed) * p
+									.GrowthRate())
+									+ currentExcessShips
+									+ reinforcementShips;
+							int shortfall = pt.NumShips() - homeDefense;
+
+							if (shortfall > 0)
+							{
+								currentDefenseTasks
+										.add(new DefenseTasks(p.PlanetID(),
+												turnsRemaining, shortfall));
+								currentExcessShips = 0;
 								startingExcessShips = currentExcessShips;
+
+							}
+							else if (shortfall <= 0)
+							{
+								currentExcessShips = homeDefense
+										- pt.NumShips();
+								if (startingExcessShips > currentExcessShips)
+								{
+									startingExcessShips = currentExcessShips;
+								}
+							}
+						}
+						turnProcessed = turnsRemaining;
+					}
+					if (startingExcessShips > 0)
+					{
+						planReserve.put(p.PlanetID(), startingExcessShips);
+					}
+				}
+				else
+				{
+					planReserve.put(p.PlanetID(), p.NumShips());
+				}
+			}
+
+			// try matching defense needs with available ships
+			// currently works on a first come, first served basis
+			// could be improved by prioritizing the defense of different
+			// planets based on their value
+
+			Collections.sort(currentDefenseTasks);
+			// Currently priority to closest attack
+			// TODO Change to ROI or some other evaluation fxn
+			int lastPlanetID = 100;
+			boolean taskUnfilled = false;
+			for (DefenseTasks dt : currentDefenseTasks)
+			{
+				HashMap<Integer, Integer> defenseMission = new HashMap<>();
+				int requiredShips = dt.NumShips();
+				if (lastPlanetID == dt.PlanetID() && taskUnfilled == true)
+				{
+					continue;
+				}
+				lastPlanetID = dt.PlanetID();
+
+				for (int pr : planReserve.keySet())
+				{
+					// TODO - Give priority to better future defendable planets
+					// using potentials,influence maps etc.
+					if ((pw.Distance(pr, dt.PlanetID()) <= dt.TurnsRemaining())
+							&& planReserve.get(pr) > 0 && requiredShips > 0)
+					{
+						if (requiredShips >= planReserve.get(pr))
+						{
+							requiredShips -= planReserve.get(pr);
+							defenseMission.put(pr, planReserve.get(pr));
+						}
+						else
+						{
+							defenseMission.put(pr, requiredShips);
+							requiredShips = 0;
+						}
+					}
+				}
+				if (requiredShips == 0)
+				{
+					for (int dm : defenseMission.keySet())
+					{
+						pw.IssueOrder(pw.GetPlanet(dm),
+								pw.GetPlanet(dt.PlanetID()),
+								defenseMission.get(dm));
+						for (int pr : planReserve.keySet())
+						{
+							if (pr == dm)
+							{
+								planReserve.put(pr, planReserve.get(pr)
+										- defenseMission.get(dm));
 							}
 						}
 					}
-					turnProcessed = turnsRemaining;
+					taskUnfilled = false;
+					dt.RemoveShips(dt.NumShips());
 				}
-				if (startingExcessShips > 0) {
-					planReserve.put(p.PlanetID(), startingExcessShips);
+				else
+				{
+					taskUnfilled = true;
 				}
 			}
-			else {
-				planReserve.put(p.PlanetID(), p.NumShips());
-			}
-		}
-		
-		// try matching defense needs with available ships
-		// currently works on a first come, first served basis
-		// could be improved by prioritizing the defense of different planets based on their value
-		
-		Collections.sort(currentDefenseTasks);
-		//Currently priority to closest attack
-		//TODO Change to ROI or some other evaluation fxn
-		int lastPlanetID = 100;
-		boolean taskUnfilled = false;
-		for (DefenseTasks dt : currentDefenseTasks) {
-			HashMap<Integer,Integer> defenseMission = new HashMap<>();
-			int requiredShips = dt.NumShips();
-			if (lastPlanetID == dt.PlanetID() && taskUnfilled == true) {
-				continue;
-			}
-			lastPlanetID = dt.PlanetID();
-			
-			for (int pr : planReserve.keySet()) {
-				// TODO - Give priority to better future defendable planets using potentials,influence maps etc.
-				if ((pw.Distance(pr, dt.PlanetID()) <= dt.TurnsRemaining()) && planReserve.get(pr) > 0 && requiredShips > 0) {
-					if (requiredShips >= planReserve.get(pr)) {
-						requiredShips -= planReserve.get(pr);
-						defenseMission.put(pr, planReserve.get(pr));
+
+			// if we can't defend a planet, we should consider abandoning it
+
+			for (DefenseTasks dt : currentDefenseTasks)
+			{
+				if (dt.NumShips() > 0 && dt.TurnsRemaining() == 1)
+				{
+					Planet p = pw.GetPlanet(dt.PlanetID());
+					if (planReserve.containsKey(dt.planetID))
+					{
+						planReserve.put(dt.planetID,
+								planReserve.get(dt.planetID) + p.NumShips());
 					}
-					else {
-						defenseMission.put(pr, requiredShips);
-						requiredShips = 0;
+					else
+					{
+						planReserve.put(dt.planetID, p.NumShips());
 					}
 				}
 			}
-			if (requiredShips == 0) {
-				for (int dm : defenseMission.keySet()) {
-					pw.IssueOrder(pw.GetPlanet(dm), pw.GetPlanet(dt.PlanetID()), defenseMission.get(dm));
-					for (int pr : planReserve.keySet()) {
-						if (pr == dm) {
-							planReserve.put(pr,planReserve.get(pr)-defenseMission.get(dm));
-						}
+			// Rage Attack
+			// TODO Replace with ROI attacks based on Timeline - Main Work
+			for (int source : planReserve.keySet())
+			{
+				if (planReserve.get(source) < 10 * pw.GetPlanet(source)
+						.GrowthRate())
+				{
+					continue;
+				}
+				Planet dest = null;
+				int bestDistance = 999999;
+				for (Planet p : pw.EnemyPlanets())
+				{
+					int dist = pw.Distance(source, p.PlanetID());
+					if (dist < bestDistance)
+					{
+						bestDistance = dist;
+						dest = p;
 					}
 				}
-				taskUnfilled = false;
-				dt.RemoveShips(dt.NumShips());
-			}
-			else {
-				taskUnfilled = true;
-			}
-		}
-		
-		// if we can't defend a planet, we should consider abandoning it
-		
-		for (DefenseTasks dt : currentDefenseTasks) {
-			if (dt.NumShips() > 0 && dt.TurnsRemaining() == 1) {
-				Planet p = pw.GetPlanet(dt.PlanetID());
-				if(planReserve.containsKey(dt.planetID)){
-					planReserve.put(dt.planetID, planReserve.get(dt.planetID)+p.NumShips());
-				}
-				else{
-					planReserve.put(dt.planetID, p.NumShips());
+				if (dest != null)
+				{
+					pw.IssueOrder(source, dest.PlanetID(),
+							planReserve.get(source));
 				}
 			}
+			// TODO Move ships to frontlines - Charmi
 		}
-		// Rage Attack
-		// TODO Replace with ROI attacks based on Timeline - Main Work
-		for (int source : planReserve.keySet()) {
-		    if (planReserve.get(source) < 10 * pw.GetPlanet(source).GrowthRate()) {
-			continue;
-		    }
-		    Planet dest = null;
-		    int bestDistance = 999999;
-		    for (Planet p : pw.EnemyPlanets()) {
-			int dist = pw.Distance(source, p.PlanetID());
-			if (dist < bestDistance) {
-			    bestDistance = dist;
-			    dest = p;
-			}
-		    }
-		    if (dest != null) {
-			pw.IssueOrder(source, dest.PlanetID(), planReserve.get(source));
-		    }
-		}
-		//TODO Move ships to frontlines - Charmi
-		}
-		//TODO Advanced Move Splitter 
+		// TODO Advanced Move Splitter
 	}
 
 	public static void main(String[] args)
