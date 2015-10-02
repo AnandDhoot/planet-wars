@@ -1,5 +1,10 @@
-import java.io.*;
-import java.util.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 public class MyBot
 {
@@ -146,6 +151,13 @@ public class MyBot
 
 	static void DoTurn(PlanetWars pw) throws IOException
 	{
+		PrintWriter out = new PrintWriter(new FileWriter("output.txt", true));
+		out.println("Turn Number " + turnCounter);
+		out.close();
+		
+		GameTimeline ob = new GameTimeline(pw);
+		ob.printTimeline();
+		
 		turnCounter++;
 		if (turnCounter == 1)
 		{// First turn knapsacking problem
@@ -401,6 +413,7 @@ public class MyBot
 			// TODO Move ships to frontlines - Charmi
 		}
 		// TODO Advanced Move Splitter
+		
 	}
 
 	public static void main(String[] args)

@@ -3,8 +3,10 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-import java.util.*;
-import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class PlanetWars {
     // Constructs a PlanetWars object instance, given a string containing a
@@ -302,26 +304,26 @@ public class PlanetWars {
     // the starting state of a game. See the project wiki for a description of
     // the file format. It should be called the Planet Wars Point-in-Time
     // format. On success, return 1. On failure, returns 0.
-    private int LoadMapFromFile(String mapFilename) {
-	String s = "";
-	BufferedReader in = null;
-	try {
-		in = new BufferedReader(new FileReader(mapFilename));
-		int c;
-		while ((c = in.read()) >= 0) {
-		    s += (char)c;
-		}
-	} catch (Exception e) {
-	    return 0;
-	} finally {
-	    try {
-		in.close();
-	    } catch (Exception e) {
-		// Fucked.
-	    }
-	}
-	return ParseGameState(s);
-    }
+//    private int LoadMapFromFile(String mapFilename) {
+//	String s = "";
+//	BufferedReader in = null;
+//	try {
+//		in = new BufferedReader(new FileReader(mapFilename));
+//		int c;
+//		while ((c = in.read()) >= 0) {
+//		    s += (char)c;
+//		}
+//	} catch (Exception e) {
+//	    return 0;
+//	} finally {
+//	    try {
+//		in.close();
+//	    } catch (Exception e) {
+//		// Fucked.
+//	    }
+//	}
+//	return ParseGameState(s);
+//    }
 
     // Store all the planets and fleets. OMG we wouldn't wanna lose all the
     // planets and fleets, would we!?
