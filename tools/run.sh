@@ -2,7 +2,7 @@
 #!/bin/bash
 TIME_LIMIT=1000
 TURN_LIMIT=200
-PLAY_GAME=tools/PlayGame.jar
+PLAY_GAME=tools/PlayGame-1.2.jar
 SHOW_GAME=tools/ShowGame.jar
 
 mkdir -p .play/build

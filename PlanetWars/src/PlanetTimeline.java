@@ -8,10 +8,10 @@ public class PlanetTimeline
 	}
 
 	PlanetTimeline(PlanetState s, int horizon)
-	{
+	{ 
 		Timeline = new PlanetState[horizon];
 		for (int i = 0; i < horizon; i++)
-		{
+		{  
 			Timeline[i] = s;
 			if (s.owner != 0)
 				Timeline[i].numShips += s.growthRate * i;
