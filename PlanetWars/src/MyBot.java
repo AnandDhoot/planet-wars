@@ -393,7 +393,7 @@ public class MyBot
 				Planet finalDest= null;
 				int finShips=0;
 				for(Planet dest: pw.NotMyPlanets()){
-					
+					if(gt.Future.get(dest.PlanetID()).Timeline[99].owner!=1){
 					int requiredShips=1+gt.Future.get(dest.PlanetID()).Timeline[pw.Distance(source, dest.PlanetID())].numShips;
 					if(requiredShips<planReserve.get(source)){
 						double score= dest.GrowthRate()*(100-pw.Distance(source, dest.PlanetID()))/requiredShips;
@@ -403,12 +403,14 @@ public class MyBot
 						finalDest=dest;
 						finShips=requiredShips;
 					}
+					}
 					
 				}
 				
 				}
 				if(finalDest!=null){
 				planReserve.put(source, planReserve.get(source)-finShips);
+				gt.Future.get(finalDest.PlanetID()).receiveFleet(new Fleet(1, finShips, source, finalDest.PlanetID(), pw.Distance(source, finalDest.PlanetID()),pw.Distance(source, finalDest.PlanetID())), pw.Distance(source, finalDest.PlanetID()));
 				pw.IssueOrder(source, finalDest.PlanetID(), finShips);}
 			}
 			
