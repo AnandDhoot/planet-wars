@@ -1,6 +1,5 @@
 import java.io.PrintWriter;
 
-
 public class PlanetState
 {
 	int planetID;
@@ -15,6 +14,7 @@ public class PlanetState
 		numShips = 0;
 		growthRate = 0;
 	}
+
 	PlanetState(int id, int owner, int num, int grRate)
 	{
 		this.planetID = id;
@@ -22,6 +22,7 @@ public class PlanetState
 		this.numShips = num;
 		this.growthRate = grRate;
 	}
+
 	void printState(PrintWriter out)
 	{
 		out.print(owner + " " + numShips);

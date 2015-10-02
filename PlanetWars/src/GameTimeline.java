@@ -15,30 +15,22 @@ public class GameTimeline
 
 	GameTimeline(PlanetWars pw)
 	{
-		Future = new HashMap<Integer, PlanetTimeline>();
 		// TODO - set variable to the diameter of the map
-		int horizon = 30;
+		int horizon = 100;
 
+		Future = new HashMap<Integer, PlanetTimeline>();
 		for (Planet p : pw.Planets())
 		{
-//			System.err.println("Now running for planet");
-//			System.err.println("Game " + p.PlanetID() + " " + p.Owner() + " " + p.NumShips());
-			
-			PlanetState s = new PlanetState(p.PlanetID(), p.Owner(), p.NumShips(), p.GrowthRate());
+			PlanetState s = new PlanetState(p.PlanetID(), p.Owner(),
+					p.NumShips(), p.GrowthRate());
 			PlanetTimeline tl = new PlanetTimeline(s, horizon);
-
-//			System.err.println("Returned from constructor");
-			
 			Future.put(p.PlanetID(), tl);
-
-//			System.err.println("Added to hashmap");
 		}
-
 		for (Fleet f : pw.Fleets())
 		{
-			PlanetTimeline pt = Future.get(f.DestinationPlanet());
-			pt.receiveFleet(f, f.TurnsRemaining());
-			Future.put(f.DestinationPlanet(), pt);
+			Future.get(f.DestinationPlanet()).receiveFleet(f,
+					f.TurnsRemaining());
+
 		}
 	}
 

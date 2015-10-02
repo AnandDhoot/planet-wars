@@ -367,7 +367,6 @@ public class MyBot
 			}
 
 			// if we can't defend a planet, we should consider abandoning it
-
 			for (DefenseTasks dt : currentDefenseTasks)
 			{
 				if (dt.NumShips() > 0 && dt.TurnsRemaining() == 1)
@@ -384,8 +383,36 @@ public class MyBot
 					}
 				}
 			}
+			
+			
 			// Rage Attack
 			// TODO Replace with ROI attacks based on Timeline - Main Work
+			GameTimeline gt = new GameTimeline(pw);
+			for (int source : planReserve.keySet()){
+				double bestScore=Double.MIN_VALUE;
+				Planet finalDest= null;
+				int finShips=0;
+				for(Planet dest: pw.NotMyPlanets()){
+					
+					int requiredShips=1+gt.Future.get(dest.PlanetID()).Timeline[pw.Distance(source, dest.PlanetID())].numShips;
+					if(requiredShips<planReserve.get(source)){
+						double score= dest.GrowthRate()*(100-pw.Distance(source, dest.PlanetID()))/requiredShips;
+						if(dest.Owner()==2)score*=2;
+					if(score>bestScore){
+						bestScore=score;
+						finalDest=dest;
+						finShips=requiredShips;
+					}
+					
+				}
+				
+				}
+				if(finalDest!=null){
+				planReserve.put(source, planReserve.get(source)-finShips);
+				pw.IssueOrder(source, finalDest.PlanetID(), finShips);}
+			}
+			
+			/*
 			for (int source : planReserve.keySet())
 			{
 				if (planReserve.get(source) < 10 * pw.GetPlanet(source)
@@ -409,7 +436,7 @@ public class MyBot
 					pw.IssueOrder(source, dest.PlanetID(),
 							planReserve.get(source));
 				}
-			}
+			}*/
 			// TODO Move ships to frontlines - Charmi
 		}
 		// TODO Advanced Move Splitter
@@ -420,6 +447,7 @@ public class MyBot
 	{
 		String line = "";
 		String message = "";
+		
 		int c;
 		try
 		{
