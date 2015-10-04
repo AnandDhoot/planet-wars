@@ -7,10 +7,11 @@ import java.util.Map;
 public class GameTimeline
 {
 	HashMap<Integer, PlanetTimeline> Future; // planetId to its timeline
-
+	List<int> newFrontIDs;
 	GameTimeline()
 	{
 		Future = new HashMap<Integer, PlanetTimeline>();
+		newFrontIDs= new List<int>();
 	}
 
 	GameTimeline(PlanetWars pw)
