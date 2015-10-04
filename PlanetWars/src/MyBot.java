@@ -411,7 +411,8 @@ public class MyBot
 				if(finalDest!=null){
 				planReserve.put(source, planReserve.get(source)-finShips);
 				gt.Future.get(finalDest.PlanetID()).receiveFleet(new Fleet(1, finShips, source, finalDest.PlanetID(), pw.Distance(source, finalDest.PlanetID()),pw.Distance(source, finalDest.PlanetID())), pw.Distance(source, finalDest.PlanetID()));
-				pw.IssueOrder(source, finalDest.PlanetID(), finShips);}
+				pw.IssueOrder(source, finalDest.PlanetID(), finShips);
+				gt.newFrontIDs.add(finalDest.PlanetID());}
 			}
 			
 			/*
@@ -420,7 +421,8 @@ public class MyBot
 				if (planReserve.get(source) < 10 * pw.GetPlanet(source)
 						.GrowthRate())
 				{
-					continue;
+					continue;			for (int pr : planReserve.keySet()){
+
 				}
 				Planet dest = null;
 				int bestDistance = 999999;
@@ -440,6 +442,81 @@ public class MyBot
 				}
 			}*/
 			// TODO Move ships to frontlines - Charmi
+			for (int pr : planReserve.keySet()){
+				
+				int leastDistance = 100;
+				Planet nearestEnemyPlanet = null;
+				Planet nearestFriendlyPlanet = null;
+				Planet friendlyClosestToEnemy = null;
+				List<Planet> closerPlanets = new ArrayList<Planet>();
+			
+				for (Planet enemyPlan : pw.EnemyPlanets()) {
+					int currDistance = pw.Distance(pr, enemyPlan.PlanetID());
+					if (leastDistance > currDistance) {
+						nearestEnemyPlanet = enemyPlan;
+						leastDistance = currDistance;
+					}
+				}
+				if (nearestEnemyPlanet == null) {continue;}
+				else {
+					int friendlyDistance;
+					for (Planet friendlyPlanet : pw.MyPlanets()) 
+					{
+						friendlyDistance = pw.Distance(friendlyPlanet.PlanetID(), pr);
+						if (pw.Distance(friendlyPlanet.PlanetID(), nearestEnemyPlanet.PlanetID()) < leastDistance)
+						{
+ 							if( friendlyDistance < leastDistance ) 
+ 							{
+ 								closerPlanets.add(friendlyPlanet);
+ 							}
+						}
+					}
+				
+					for (int frontPlanet : gt.newFrontIDs) 
+					{
+						friendlyDistance = pw.Distance(frontPlanet, pr);
+						if (pw.Distance(frontPlanet, nearestEnemyPlanet.PlanetID()) < leastDistance)
+						{
+							if(friendlyDistance < leastDistance ) 
+							{
+								Planet mp = pw.GetPlanet(frontPlanet);
+								closerPlanets.add(mp);
+							}
+						}
+					}
+				}
+				if (!closerPlanets.isEmpty()) {
+					int shortestFDistance = 100;
+					int shortestEDistance = 100;
+				
+					for (Planet cp : closerPlanets) {
+						int currDistance = pw.Distance(nearestEnemyPlanet.PlanetID(), cp.PlanetID());
+						if (shortestEDistance > currDistance) {
+							shortestEDistance = currDistance;
+							friendlyClosestToEnemy = cp;
+						} 
+					
+						currDistance = pw.Distance(pr, cp.PlanetID());
+						if (shortestFDistance > currDistance) 
+						{
+							shortestFDistance = currDistance;
+							nearestFriendlyPlanet = cp;
+						}
+					}
+					int numShipsPR=planReserve.get(pr);
+					if (nearestFriendlyPlanet != null && numShipsPR > 0) 
+					{
+						int ShortWay = pw.Distance(pr, friendlyClosestToEnemy.PlanetID());
+						int LongWay = pw.Distance(pr, nearestFriendlyPlanet.PlanetID()) + pw.Distance(nearestEnemyPlanet.PlanetID(), nearestFriendlyPlanet.PlanetID());
+						if ((ShortWay * 1.50) > LongWay) {
+							pw.IssueOrder(pw.GetPlanet(pr), nearestFriendlyPlanet, numShipsPR);
+						}
+						else {
+							pw.IssueOrder(pw.GetPlanet(pr), friendlyClosestToEnemy, numShipsPR);					
+						}
+					}
+				}
+			}
 		}
 		// TODO Advanced Move Splitter
 		

@@ -1,20 +1,25 @@
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GameTimeline
 {
 	HashMap<Integer, PlanetTimeline> Future; // planetId to its timeline
-
+	List<Integer> newFrontIDs;
 	GameTimeline()
 	{
 		Future = new HashMap<Integer, PlanetTimeline>();
+		newFrontIDs= new ArrayList<Integer>();
 	}
 
 	GameTimeline(PlanetWars pw)
-	{
+	{		
+		newFrontIDs= new ArrayList<Integer>();
+
 		// TODO - set variable to the diameter of the map
 		int horizon = 100;
 
