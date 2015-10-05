@@ -26,7 +26,6 @@ public class PlanetTimeline
 	void receiveFleet(Fleet f, int timeRemaining)
 	{
 		// TODO - Assumes timeRemaining > 0, always
-
 		// Set owner, Number of Ships for all times after timeRemaining
 		boolean inc = (f.Owner() == Timeline[timeRemaining].owner);
 		if (inc)
@@ -74,5 +73,22 @@ public class PlanetTimeline
 			Timeline[i].printState(out);
 			out.println();
 		}
+	}
+
+	Integer getMinimum()
+	{
+		Integer val = Integer.MAX_VALUE;
+		Integer own = Timeline[0].owner;
+		for (int i = 0; i < Timeline.length; i++)
+		{
+			if (Timeline[i].owner != own)
+				return 0;
+		}
+		for (int i = 0; i < Timeline.length; i++)
+		{
+			if (Timeline[i].numShips < val)
+				val = Timeline[i].numShips;
+		}
+		return val;
 	}
 }

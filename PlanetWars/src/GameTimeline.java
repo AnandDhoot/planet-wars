@@ -10,15 +10,16 @@ public class GameTimeline
 {
 	HashMap<Integer, PlanetTimeline> Future; // planetId to its timeline
 	List<Integer> newFrontIDs;
+
 	GameTimeline()
 	{
 		Future = new HashMap<Integer, PlanetTimeline>();
-		newFrontIDs= new ArrayList<Integer>();
+		newFrontIDs = new ArrayList<Integer>();
 	}
 
 	GameTimeline(PlanetWars pw)
-	{		
-		newFrontIDs= new ArrayList<Integer>();
+	{
+		newFrontIDs = new ArrayList<Integer>();
 
 		// TODO - set variable to the diameter of the map
 		int horizon = 100;
@@ -31,11 +32,31 @@ public class GameTimeline
 			PlanetTimeline tl = new PlanetTimeline(s, horizon);
 			Future.put(p.PlanetID(), tl);
 		}
-		for (Fleet f : pw.Fleets())
+		
+//		TODO - Improve sorting algo
+		List<Fleet> fleetsByTurnsRemaining = new ArrayList<Fleet>();
+		List<Fleet> origList = new ArrayList<Fleet>();
+		Fleet min;
+		
+		for(Fleet f : pw.Fleets())
+		{
+			origList.add(f);
+		}
+		while(!origList.isEmpty())
+		{
+			min = origList.get(0);
+			for(int i=1; i < origList.size(); i++)
+				if(min.TurnsRemaining()> origList.get(i).TurnsRemaining())
+					min = origList.get(i);
+			fleetsByTurnsRemaining.add(min);
+			origList.remove(min);
+		}
+		
+		
+		for (Fleet f : fleetsByTurnsRemaining)
 		{
 			Future.get(f.DestinationPlanet()).receiveFleet(f,
 					f.TurnsRemaining());
-
 		}
 	}
 

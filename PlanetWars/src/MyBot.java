@@ -10,7 +10,7 @@ public class MyBot
 {
 	private static int turnCounter = 0;
 
-	public static ArrayList<Planet> knapsack01(ArrayList<Planet> planets,
+	public static ArrayList<Planet> knapsack(ArrayList<Planet> planets,
 			int maxWeight)
 	{
 		ArrayList<Integer> weights = new ArrayList<Integer>();
@@ -76,13 +76,11 @@ public class MyBot
 		out.println("Turn Number " + turnCounter);
 		out.close();
 
-		// GameTimeline ob = new GameTimeline(pw);
-		// ob.printTimeline();
+		GameTimeline gt = new GameTimeline(pw);
 
 		turnCounter++;
 		if (turnCounter == 1)
-		{// First turn knapsacking problem
-			// Calculate available ships
+		{// First turn knapsacking
 
 			Planet my = pw.MyPlanets().get(0);
 			Planet enemy = pw.EnemyPlanets().get(0);
@@ -96,7 +94,7 @@ public class MyBot
 						p1.PlanetID(), enemy.PlanetID()))
 					planets.add(p1);
 
-			ArrayList<Planet> toCapture = knapsack01(planets, maxWeight);
+			ArrayList<Planet> toCapture = knapsack(planets, maxWeight);
 			for (Planet p : toCapture)
 			{
 				pw.IssueOrder(my, p, p.NumShips() + 1);
@@ -104,12 +102,10 @@ public class MyBot
 		}
 		else
 		{
-			// (1) If we currently have a fleet in flight, just do nothing.
 			List<DefenseTasks> currentDefenseTasks = new ArrayList<DefenseTasks>();
 			HashMap<Integer, Integer> planReserve = new HashMap<Integer, Integer>();
 			for (Planet p : pw.MyPlanets())
 			{
-
 				List<PlanetThreat> incomingThreats = new ArrayList<PlanetThreat>();
 				for (Fleet ef : pw.EnemyFleets())
 				{
@@ -220,6 +216,17 @@ public class MyBot
 				}
 			}
 
+			gt.printTimeline();
+			for (Planet p : pw.MyPlanets())
+			{
+				if (gt.Future.get(p.PlanetID()).getMinimum() != planReserve
+						.get(p.PlanetID()))
+					System.err.println(p.PlanetID() + " "
+							+ gt.Future.get(p.PlanetID()).getMinimum() + " "
+							+ planReserve.get(p.PlanetID()));
+//				planReserve.put(p.PlanetID(), gt.Future.get(p.PlanetID()).getMinimum());
+			}
+
 			// try matching defense needs with available ships
 			// currently works on a first come, first served basis
 			// could be improved by prioritizing the defense of different
@@ -304,7 +311,6 @@ public class MyBot
 
 			// Rage Attack
 			// TODO Replace with ROI attacks based on Timeline - Main Work
-			GameTimeline gt = new GameTimeline(pw);
 			for (int source : planReserve.keySet())
 			{
 				double bestScore = Double.MIN_VALUE;
@@ -487,7 +493,6 @@ public class MyBot
 				}
 			}
 
-			gt.printTimeline();
 		}
 		// TODO Advanced Move Splitter
 
