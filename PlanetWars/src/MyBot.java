@@ -8,84 +8,7 @@ import java.util.List;
 
 public class MyBot
 {
-	static class DefenseTasks implements Comparable<Object>
-	{
-
-		public DefenseTasks(int planetID, int turnsRemaining, int numShips)
-		{
-			this.planetID = planetID;
-			this.turnsRemaining = turnsRemaining;
-			this.numShips = numShips;
-		}
-
-		public int PlanetID()
-		{
-			return planetID;
-		}
-
-		public int TurnsRemaining()
-		{
-			return turnsRemaining;
-		}
-
-		public int NumShips()
-		{
-			return numShips;
-		}
-
-		public void RemoveShips(int amount)
-		{
-			numShips -= amount;
-		}
-
-		public int compareTo(Object obj)
-		{
-			DefenseTasks anotherTask = (DefenseTasks) obj;
-			int anotherTaskTurn = anotherTask.TurnsRemaining();
-			return this.turnsRemaining - anotherTaskTurn;
-		}
-
-		private int planetID;
-		private int turnsRemaining;
-		private int numShips;
-
-	}
-
-	static class PlanetThreat implements Comparable<Object>
-	{
-
-		public PlanetThreat(int turnsRemaining, int numShips)
-		{
-			this.turnsRemaining = turnsRemaining;
-			this.numShips = numShips;
-		}
-
-		public int TurnsRemaining()
-		{
-			return turnsRemaining;
-		}
-
-		public int NumShips()
-		{
-			return numShips;
-		}
-
-		public void AddShips(int amount)
-		{
-			numShips += amount;
-		}
-
-		public int compareTo(Object obj)
-		{
-			PlanetThreat anotherThreat = (PlanetThreat) obj;
-			int anotherThreatTurn = anotherThreat.TurnsRemaining();
-			return this.turnsRemaining - anotherThreatTurn;
-		}
-
-		private int turnsRemaining;
-		private int numShips;
-
-	}
+	private static int turnCounter = 0;
 
 	public static ArrayList<Planet> knapsack01(ArrayList<Planet> planets,
 			int maxWeight)
@@ -147,8 +70,6 @@ public class MyBot
 		return markedPlanets;
 	}
 
-	private static int turnCounter = 0;
-
 	static void DoTurn(PlanetWars pw) throws IOException
 	{
 		PrintWriter out = new PrintWriter(new FileWriter("output.txt", true));
@@ -199,7 +120,7 @@ public class MyBot
 						boolean foundThreat = false;
 						for (PlanetThreat pt : incomingThreats)
 						{
-							if (pt.TurnsRemaining() == turnsRemaining)
+							if (pt.turnsRemaining == turnsRemaining)
 							{
 								pt.AddShips(numShips);
 								foundThreat = true;
@@ -221,7 +142,7 @@ public class MyBot
 					int currentExcessShips = 0;
 					for (PlanetThreat pt : incomingThreats)
 					{
-						int turnsRemaining = pt.TurnsRemaining();
+						int turnsRemaining = pt.turnsRemaining;
 						int reinforcementShips = 0;
 						for (Fleet mf : pw.MyFleets())
 						{
@@ -236,24 +157,22 @@ public class MyBot
 						{
 							reinforcementShips += (turnsRemaining * p
 									.GrowthRate());
-							if (reinforcementShips >= pt.NumShips())
+							if (reinforcementShips >= pt.numShips)
 							{
 								startingExcessShips = p.NumShips();
-								currentExcessShips = (reinforcementShips - pt
-										.NumShips());
+								currentExcessShips = (reinforcementShips - pt.numShips);
 							}
 							else
 							{
-								if ((reinforcementShips + p.NumShips()) >= pt
-										.NumShips())
+								if ((reinforcementShips + p.NumShips()) >= pt.numShips)
 								{
 									startingExcessShips = p.NumShips()
-											- (pt.NumShips() - reinforcementShips);
+											- (pt.numShips - reinforcementShips);
 									currentExcessShips = startingExcessShips;
 								}
 								else
 								{
-									int shortfall = pt.NumShips()
+									int shortfall = pt.numShips
 											- (reinforcementShips + p
 													.NumShips());
 									currentDefenseTasks.add(new DefenseTasks(p
@@ -268,7 +187,7 @@ public class MyBot
 									.GrowthRate())
 									+ currentExcessShips
 									+ reinforcementShips;
-							int shortfall = pt.NumShips() - homeDefense;
+							int shortfall = pt.numShips - homeDefense;
 
 							if (shortfall > 0)
 							{
@@ -281,8 +200,7 @@ public class MyBot
 							}
 							else if (shortfall <= 0)
 							{
-								currentExcessShips = homeDefense
-										- pt.NumShips();
+								currentExcessShips = homeDefense - pt.numShips;
 								if (startingExcessShips > currentExcessShips)
 								{
 									startingExcessShips = currentExcessShips;
@@ -315,18 +233,18 @@ public class MyBot
 			for (DefenseTasks dt : currentDefenseTasks)
 			{
 				HashMap<Integer, Integer> defenseMission = new HashMap<>();
-				int requiredShips = dt.NumShips();
-				if (lastPlanetID == dt.PlanetID() && taskUnfilled == true)
+				int requiredShips = dt.numShips;
+				if (lastPlanetID == dt.planetID && taskUnfilled == true)
 				{
 					continue;
 				}
-				lastPlanetID = dt.PlanetID();
+				lastPlanetID = dt.planetID;
 
 				for (int pr : planReserve.keySet())
 				{
 					// TODO - Give priority to better future defendable planets
 					// using potentials,influence maps etc.
-					if ((pw.Distance(pr, dt.PlanetID()) <= dt.TurnsRemaining())
+					if ((pw.Distance(pr, dt.planetID) <= dt.turnsRemaining)
 							&& planReserve.get(pr) > 0 && requiredShips > 0)
 					{
 						if (requiredShips >= planReserve.get(pr))
@@ -346,7 +264,7 @@ public class MyBot
 					for (int dm : defenseMission.keySet())
 					{
 						pw.IssueOrder(pw.GetPlanet(dm),
-								pw.GetPlanet(dt.PlanetID()),
+								pw.GetPlanet(dt.planetID),
 								defenseMission.get(dm));
 						for (int pr : planReserve.keySet())
 						{
@@ -358,7 +276,7 @@ public class MyBot
 						}
 					}
 					taskUnfilled = false;
-					dt.RemoveShips(dt.NumShips());
+					dt.RemoveShips(dt.numShips);
 				}
 				else
 				{
@@ -369,9 +287,9 @@ public class MyBot
 			// if we can't defend a planet, we should consider abandoning it
 			for (DefenseTasks dt : currentDefenseTasks)
 			{
-				if (dt.NumShips() > 0 && dt.TurnsRemaining() == 1)
+				if (dt.numShips > 0 && dt.turnsRemaining == 1)
 				{
-					Planet p = pw.GetPlanet(dt.PlanetID());
+					Planet p = pw.GetPlanet(dt.planetID);
 					if (planReserve.containsKey(dt.planetID))
 					{
 						planReserve.put(dt.planetID,
@@ -400,16 +318,20 @@ public class MyBot
 
 						for (Planet p2 : pw.NotMyPlanets())
 						{
-							int myDistance = pw.Distance(source, dest.PlanetID());
+							int myDistance = pw.Distance(source,
+									dest.PlanetID());
 							int thisPlanet = p2.PlanetID();
 							if (thisPlanet != dest.PlanetID())
 							{
-								int thisDistance = pw.Distance(dest.PlanetID(), thisPlanet);
-								if (myDistance > thisDistance && gt.Future.get(thisPlanet).Timeline[(myDistance
-										- thisDistance + 1)].owner == 2)
+								int thisDistance = pw.Distance(dest.PlanetID(),
+										thisPlanet);
+								if (myDistance > thisDistance
+										&& gt.Future.get(thisPlanet).Timeline[(myDistance
+												- thisDistance + 1)].owner == 2)
 								{
-									potentialEnemyForces += gt.Future.get(thisPlanet).Timeline[(myDistance
-										- thisDistance + 1)].numShips;
+									potentialEnemyForces += gt.Future
+											.get(thisPlanet).Timeline[(myDistance
+											- thisDistance + 1)].numShips;
 								}
 							}
 						}
