@@ -69,7 +69,7 @@ public class MyBot
 		}
 		return markedPlanets;
 	}
-static DistanceUtilities distData = new DistanceUtilities();
+static AllDistance distData = new AllDistance();
 	static void DoTurn(PlanetWars pw) throws IOException
 	{
 		PrintWriter out = new PrintWriter(new FileWriter("output.txt", true));
