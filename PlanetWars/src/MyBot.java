@@ -451,7 +451,56 @@ static AllDistance distData = new AllDistance();
 			 * dest.PlanetID(), planReserve.get(source)); } }
 			 */
 			// TODO Move ships to frontlines - Charmi
-			for (int pr : planReserve.keySet())
+			List<Planet> frontline = new ArrayList<>();
+			for(Planet currPlanet : pw.MyPlanets()){
+				Planet nearestEnemyPlanet = null;
+				int leastDistance=100;
+				for (Planet enemyPlan : pw.EnemyPlanets())
+				{
+					int currDistance = pw.Distance(currPlanet.PlanetID(), enemyPlan.PlanetID());
+					if (leastDistance > currDistance)
+					{
+						nearestEnemyPlanet = enemyPlan;
+						leastDistance = currDistance;
+					}
+				}
+				if(nearestEnemyPlanet == null){
+					continue;
+				}
+				else {
+					Boolean isFrontline=true;
+					for(Planet friendlyPlanet: pw.MyPlanets()){
+						if(pw.Distance(nearestEnemyPlanet.PlanetID() , friendlyPlanet.PlanetID())< leastDistance   
+								&& pw.Distance(currPlanet.PlanetID() , friendlyPlanet.PlanetID() ) < leastDistance ){
+							isFrontline=false;
+							break;
+						}
+					}
+					if(isFrontline){
+						frontline.add(currPlanet);
+					}
+				}
+			}
+			
+			for(int pr: planReserve.keySet()){
+				if(frontline.contains(pw.GetPlanet(pr))){continue;}
+				else {
+					int leastDist=100;
+					Planet closestFront = null;
+					for(Planet front: frontline ){
+						if(pw.Distance(pr, front.PlanetID())< leastDist){
+							leastDist= pw.Distance(pr, front.PlanetID());
+							closestFront=front;
+						}
+					}
+					int numShipsPR = planReserve.get(pr);
+
+					if(closestFront!=null && numShipsPR >0){
+						pw.IssueOrder(pw.GetPlanet(pr), closestFront , numShipsPR);
+					}
+				}
+			}
+			/*for (int pr : planReserve.keySet())
 			{
 
 				int leastDistance = 100;
@@ -552,7 +601,7 @@ static AllDistance distData = new AllDistance();
 
 					}
 				}
-			}
+			}*/
 
 		}
 		// TODO Advanced Move Splitter
