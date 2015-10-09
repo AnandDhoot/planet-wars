@@ -410,10 +410,14 @@ static AllDistance distData = new AllDistance();
 							double score = dest.GrowthRate()
 									* (100 - pw.Distance(source,
 											dest.PlanetID())) - requiredShips;
-							if (dest.Owner() == 2)
-								score = 2*dest.GrowthRate()
+							if (dest.Owner() == 0 && turnCounter<20)
+								score = 1.5*dest.GrowthRate()
 										* (100 - pw.Distance(source,
-												dest.PlanetID())) - requiredShips;;
+												dest.PlanetID())) - requiredShips;
+							if (dest.Owner() == 2&&turnCounter>50)
+								score = 2.5*dest.GrowthRate()
+										* (100 - pw.Distance(source,
+												dest.PlanetID())) - requiredShips;
 							if (score > bestScore)
 							{
 								bestScore = score;
@@ -426,7 +430,7 @@ static AllDistance distData = new AllDistance();
 
 				}
 				if (finalDest != null)
-				{
+				{	if((turnCounter<40&&bestScore>0)||(turnCounter>=40)){
 					planReserve.put(source, planReserve.get(source) - finShips);
 					gt.Future.get(finalDest.PlanetID()).receiveFleet(
 							new Fleet(1, finShips, source,
@@ -436,6 +440,7 @@ static AllDistance distData = new AllDistance();
 							pw.Distance(source, finalDest.PlanetID()));
 					pw.IssueOrder(source, finalDest.PlanetID(), finShips);
 					gt.newFrontIDs.add(finalDest.PlanetID());
+				}
 				}
 			}
 

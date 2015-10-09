@@ -1,7 +1,7 @@
 
 #!/bin/bash
 TIME_LIMIT=1000
-TURN_LIMIT=200
+TURN_LIMIT=102
 PLAY_GAME=tools/PlayGame.jar
 SHOW_GAME=tools/ShowGame.jar
 
