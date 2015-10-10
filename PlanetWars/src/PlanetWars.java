@@ -173,12 +173,42 @@ public class PlanetWars {
     //   * you can't move more ships than are currently on the source planet.
     //   * the ships will take a few turns to reach their destination. Travel
     //     is not instant. See the Distance() function for more info.
+    
     public void IssueOrder(Planet source, Planet dest, int numShips) {
         System.out.println("" + source.PlanetID() + " " + dest.PlanetID() +
           " " + numShips);
 	System.out.flush();
     }
-
+    
+    
+    public void moveSplitter(GameTimeline gt, Planet source, Planet dest, int numShips){
+//    	int dist= this.Distance(source.PlanetID(), dest.PlanetID());
+//    	for(Planet friendlyPlanet: MyPlanets() ){
+//    		if(source.PlanetID()!=friendlyPlanet.PlanetID()){
+//    			int dist1= Distance(source.PlanetID(), friendlyPlanet.PlanetID());
+//    			int dist2= Distance(friendlyPlanet.PlanetID(), dest.PlanetID());
+//    			if((dist== dist1 + dist2) && gt.Future.get(friendlyPlanet.PlanetID()).Timeline[dist1].owner==1){
+//    				IssueOrder(source, friendlyPlanet, numShips);
+//    				return;
+//    			}
+//    		}
+//    	}
+//    	for(int friendlyPlanet: gt.newFrontIDs ){
+//    		if(source.PlanetID()!=friendlyPlanet){
+//    			int dist1= Distance(source.PlanetID(), friendlyPlanet);
+//    			int dist2= Distance(friendlyPlanet, dest.PlanetID());
+//    			if((dist== dist1 + dist2) && gt.Future.get(friendlyPlanet).Timeline[dist1].owner==1){
+//    				IssueOrder(source, GetPlanet(friendlyPlanet), numShips);
+//    				return;
+//    			}
+//    		}
+//    	}
+    	IssueOrder(source, dest, numShips);
+    }
+    
+    public void moveSplitter(GameTimeline gt, int source, int dest, int numShips){
+    	moveSplitter(gt, GetPlanet(source), GetPlanet(dest), numShips);
+    }
     // Sends the game engine a message to let it know that we're done sending
     // orders. This signifies the end of our turn.
     public void FinishTurn() {
