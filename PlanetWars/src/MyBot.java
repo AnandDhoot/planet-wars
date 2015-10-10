@@ -212,127 +212,154 @@ public class MyBot
 			// Rage Attack
 			// TODO Replace with ROI attacks based on Timeline - Main Work
 
-			List<Planet> pList = new ArrayList<Planet>(pw.NotMyPlanets());
-			while (true)
-			{
-				double bestScore = Double.MIN_VALUE;
-				HashMap<Integer, Integer> bestAttack = new HashMap<Integer, Integer>();
-				Planet bestDest = null;
-				for (Planet dest : pList)
-				{
-					if (gt.Future.get(dest.PlanetID()).Timeline[99].owner == 1)
-						break;
-					List<Distance> sortedPL = distData
-							.getDistancesToOtherPlanets(dest);
-					HashMap<Integer, Integer> attack = new HashMap<Integer, Integer>();
-					int totalSpent = 0;
-					int totalGain = 0;
-					PlanetTimeline pt = gt.Future.get(dest.PlanetID()).copy(); // Change
-																				// to
-																				// to
-																				// true
-																				// deep
-																				// copy
+//			boolean reckless = false;
+//			int sanityCheck = 100;
+//			
+//			if (pw.Production(1) > (pw.Production(2)) && pw.NumShips(1) < (pw.NumShips(2))) {
+//				sanityCheck *= 0.75;
+//			}
+//			
+//			if (pw.Production(1) < (pw.Production(2)) && pw.NumShips(1) > (pw.NumShips(2))) {
+//				sanityCheck *= 1.25;
+//				reckless = true;
+//			}
+//			
+//			List<Planet> pList = new ArrayList<Planet>(pw.NotMyPlanets());
+//			while (true)
+//			{
+//				double bestScore = Double.MIN_VALUE;
+//				HashMap<Integer, Integer> bestAttack = new HashMap<Integer, Integer>();
+//				Planet bestDest = null;
+//				for (Planet dest : pList)
+//				{
+//					if (gt.Future.get(dest.PlanetID()).Timeline[99].owner == 1)
+//						break;
+//					List<Distance> sortedPL = distData
+//							.getDistancesToOtherPlanets(dest);
+//					HashMap<Integer, Integer> attack = new HashMap<Integer, Integer>();
+//					int totalSpent = 0;
+//					int totalGain = 0;
+//					PlanetTimeline pt = gt.Future.get(dest.PlanetID()).copy(); // Change
+//																				// to
+//																				// to
+//																				// true
+//																				// deep
+//																				// copy
+//
+//					// Formualte a attack
+//					for (Distance d : sortedPL)
+//					{
+//						Planet source = pw.GetPlanet(d.getDestination());
+//
+//						if (source.Owner() == 1
+//								&& planReserve.containsKey(source.PlanetID()))
+//						{// its my planet
+//							System.err.println("hh");
+//							int availShips = planReserve.get(source.PlanetID());
+//							int reqShips = pt.Timeline[d.getDistance()].numShips + 1;
+//							int potentialEnemyForces = 0;
+//
+//							for (Planet p2 : pw.NotMyPlanets())
+//							{
+//								int myDistance = pw.Distance(source.PlanetID(),
+//										dest.PlanetID());
+//								int thisPlanet = p2.PlanetID();
+//								if (thisPlanet != dest.PlanetID())
+//								{
+//									int thisDistance = pw.Distance(
+//											dest.PlanetID(), thisPlanet);
+//									if (myDistance > thisDistance
+//											&& gt.Future.get(thisPlanet).Timeline[(myDistance
+//													- thisDistance + 1)].owner == 2)
+//									{
+//										potentialEnemyForces += gt.Future
+//												.get(thisPlanet).Timeline[(myDistance
+//												- thisDistance + 1)].numShips;
+//									}
+//								}
+//							}
+//							if(reckless)
+//								potentialEnemyForces *= 0.5;
+//							
+//							reqShips += potentialEnemyForces;
+//
+//							if (reqShips > availShips)
+//							{
+//								Fleet f = new Fleet(1, availShips,
+//										source.PlanetID(), dest.PlanetID(),
+//										d.getDistance(), d.getDistance());
+//
+//								System.err.println(source.PlanetID() + " I");
+//								pt.receiveFleet(f, d.getDistance());
+//								attack.put(source.PlanetID(), availShips);
+//								totalSpent += availShips;
+//							}
+//
+//							else
+//							{
+//								Fleet f = new Fleet(1, reqShips,
+//										source.PlanetID(), dest.PlanetID(),
+//										d.getDistance(), d.getDistance());
+//
+//								pt.receiveFleet(f, d.getDistance());
+//								attack.put(source.PlanetID(), reqShips);
+//
+//								System.err.println(source.PlanetID() + " E");
+//								totalGain = (100 - d.getDistance())
+//										* source.GrowthRate();
+//								totalSpent += reqShips;
+//								System.err.println(source.PlanetID() + " E2");
+//
+//								break;
+//
+//							}
+//							System.err.println(source.PlanetID());
+//
+//						}
+//
+//					}
+//					// Evaluate the Attack
+//					if (totalGain - totalSpent > bestScore)
+//					{
+//						bestScore = totalGain - totalSpent;
+//						bestAttack = attack;
+//						bestDest = dest;
+//					}
+//				}
+//
+//				if (bestScore == Double.MIN_VALUE || bestDest == null)
+//				{
+//					pList.remove(bestDest);
+//					break;
+//				}
+//
+//				System.err.println("Evaluating");
+//
+//				// execute best attack
+//				if(sanityCheck*3 > bestScore)
+//				{
+//					for (int i : bestAttack.keySet())
+//					{
+//						System.err.println(pw.GetPlanet(i).NumShips() + " "
+//								+ bestAttack.get(i));
+//	
+//						pw.IssueOrder(i, bestDest.PlanetID(), bestAttack.get(i));
+//						planReserve.put(i, planReserve.get(i) - bestAttack.get(i));
+//						gt.Future.get(bestDest.PlanetID()).receiveFleet(
+//								new Fleet(1, bestAttack.get(i), i,
+//										bestDest.PlanetID(), pw.Distance(i,
+//												bestDest.PlanetID()), pw.Distance(
+//												i, bestDest.PlanetID())),
+//								pw.Distance(i, bestDest.PlanetID()));
+//					}
+//				}
+//				pList.remove(bestDest);
+//			}
 
-					// Formualte a attack
-					for (Distance d : sortedPL)
-					{
-						Planet source = pw.GetPlanet(d.getDestination());
-					
-						if (source.Owner() == 1&&planReserve.containsKey(source.PlanetID()))
-						{// its my planet
-							System.err.println("hh");
-							int availShips = planReserve.get(source.PlanetID());
-							int reqShips = pt.Timeline[d.getDistance()].numShips + 1;
-							int potentialEnemyForces = 0;
-
-							for (Planet p2 : pw.NotMyPlanets())
-							{
-								int myDistance = pw.Distance(source.PlanetID(),
-										dest.PlanetID());
-								int thisPlanet = p2.PlanetID();
-								if (thisPlanet != dest.PlanetID())
-								{
-									int thisDistance = pw.Distance(dest.PlanetID(),
-											thisPlanet);
-									if (myDistance > thisDistance
-											&& gt.Future.get(thisPlanet).Timeline[(myDistance
-													- thisDistance + 1)].owner == 2)
-									{
-										potentialEnemyForces += gt.Future
-												.get(thisPlanet).Timeline[(myDistance
-												- thisDistance + 1)].numShips;
-									}
-								}
-							}
-							reqShips += potentialEnemyForces; 
-							
-							if (reqShips > availShips)
-							{
-								Fleet f = new Fleet(1, availShips,
-										source.PlanetID(), dest.PlanetID(),
-										d.getDistance(), d.getDistance());
-
-								System.err.println(source.PlanetID() + " I");
-								pt.receiveFleet(f, d.getDistance());
-								attack.put(source.PlanetID(), availShips);
-								totalSpent += availShips;
-							}
-
-							else
-							{
-								Fleet f = new Fleet(1, reqShips,
-										source.PlanetID(), dest.PlanetID(),
-										d.getDistance(), d.getDistance());
-
-								pt.receiveFleet(f, d.getDistance());
-								attack.put(source.PlanetID(), reqShips);
-
-								System.err.println(source.PlanetID() + " E");
-								totalGain = (100 - d.getDistance())
-										* source.GrowthRate();
-								totalSpent += reqShips;
-								System.err.println(source.PlanetID() + " E2");
-								
-								break;
-
-							}
-							System.err.println(source.PlanetID());
-
-						}
-
-					}
-					// Evaluate the Attack
-					if (totalGain - totalSpent > bestScore)
-					{
-						bestScore = totalGain - totalSpent;
-						bestAttack = attack;
-						bestDest = dest;
-					}
-				}
-
-				if (bestScore == Double.MIN_VALUE||bestDest==null)
-					break;
-
-				System.err.println("Evaluating");
-				
-				// execute best attack
-				for (int i : bestAttack.keySet())
-				{
-					System.err.println(pw.GetPlanet(i).NumShips() +" "+ bestAttack.get(i));
-					
-					pw.IssueOrder(i, bestDest.PlanetID(), bestAttack.get(i));
-					planReserve.put(i, planReserve.get(i) - bestAttack.get(i));
-					gt.Future.get(bestDest.PlanetID()).receiveFleet(
-							new Fleet(1, bestAttack.get(i), i, bestDest.PlanetID(),
-									pw.Distance(i, bestDest.PlanetID()), pw.Distance(i,
-											bestDest.PlanetID())),
-							pw.Distance(i, bestDest.PlanetID()));
-					;
-				}
-				pList.remove(bestDest);
+			boolean reckless = false;
+			if (pw.Production(1) < (pw.Production(2)) && pw.NumShips(1) > (pw.NumShips(2))) {
+				reckless = true;
 			}
-			System.err.println("aa");
 			for (int source : planReserve.keySet())
 			{
 				double bestScore = Double.MIN_VALUE;
@@ -367,6 +394,9 @@ public class MyBot
 								}
 							}
 						}
+						
+						if(reckless)
+							potentialEnemyForces *= 0.5;
 
 						int requiredShips = 1
 								+ gt.Future.get(dest.PlanetID()).Timeline[pw
@@ -426,113 +456,182 @@ public class MyBot
 			 * dest.PlanetID(), planReserve.get(source)); } }
 			 */
 			// TODO Move ships to frontlines - Charmi
-			
-			  List<Planet> frontline = new ArrayList<>(); 
-			  for(Planet currPlanet: pw.MyPlanets()){ 
-				  Planet nearestEnemyPlanet = null; 
-				  int leastDistance=100; 
-				  for (Planet enemyPlan : pw.EnemyPlanets()) {
-					  int currDistance = pw.Distance(currPlanet.PlanetID(),
-					  enemyPlan.PlanetID()); 
-					  if (leastDistance > currDistance) {
-						  nearestEnemyPlanet = enemyPlan; 
-						  leastDistance = currDistance; 
-					  } 
-				  }
-				  if(nearestEnemyPlanet == null){ 
-					  continue; 
-				  } else { 
-					  Boolean isFrontline=true; 
-					  for(Planet friendlyPlanet: pw.MyPlanets()){
-						  if(pw.Distance(nearestEnemyPlanet.PlanetID() ,
-								  friendlyPlanet.PlanetID())< leastDistance &&
-								  pw.Distance(currPlanet.PlanetID() , friendlyPlanet.PlanetID() ) <
-								  leastDistance ){ 
-							  isFrontline=false; 
-							  break; 
-						  } 
-					  } 
-					  if(isFrontline){
-						  frontline.add(currPlanet); 
-					  } 
-				  } 
-			  }
-			  
-			for(int pr: planReserve.keySet()){
-				if(frontline.contains(pw.GetPlanet(pr))){
+
+			// List<Planet> frontline = new ArrayList<>();
+			// for (Planet currPlanet : pw.MyPlanets())
+			// {
+			// Planet nearestEnemyPlanet = null;
+			// int leastDistance = 100;
+			// for (Planet enemyPlan : pw.EnemyPlanets())
+			// {
+			// int currDistance = pw.Distance(currPlanet.PlanetID(),
+			// enemyPlan.PlanetID());
+			// if (leastDistance > currDistance)
+			// {
+			// nearestEnemyPlanet = enemyPlan;
+			// leastDistance = currDistance;
+			// }
+			// }
+			// if (nearestEnemyPlanet == null)
+			// {
+			// continue;
+			// }
+			// else
+			// {
+			// Boolean isFrontline = true;
+			// for (Planet friendlyPlanet : pw.MyPlanets())
+			// {
+			// if (pw.Distance(nearestEnemyPlanet.PlanetID(),
+			// friendlyPlanet.PlanetID()) < leastDistance
+			// && pw.Distance(currPlanet.PlanetID(),
+			// friendlyPlanet.PlanetID()) < leastDistance)
+			// {
+			// isFrontline = false;
+			// break;
+			// }
+			// }
+			// if (isFrontline)
+			// {
+			// frontline.add(currPlanet);
+			// }
+			// }
+			// }
+
+			// for (int pr : planReserve.keySet())
+			// {
+			// if (frontline.contains(pw.GetPlanet(pr)))
+			// {
+			// continue;
+			// }
+			// else
+			// {
+			// int leastDist = 100;
+			// Planet closestFront = null;
+			// for (Planet front : frontline)
+			// {
+			// if (pw.Distance(pr, front.PlanetID()) < leastDist)
+			// {
+			// leastDist = pw.Distance(pr, front.PlanetID());
+			// closestFront = front;
+			// }
+			// }
+			// int numShipsPR = planReserve.get(pr);
+			//
+			// if (closestFront != null
+			// && numShipsPR > 0
+			// &&
+			// gt.Future.get(closestFront.PlanetID()).Timeline[leastDist].owner
+			// == 1)
+			// {
+			// pw.moveSplitter(gt, pw.GetPlanet(pr), closestFront,
+			// numShipsPR);
+			// }
+			// }
+			// }
+
+			for (int pr : planReserve.keySet())
+			{
+
+				int leastDistance = 100;
+				Planet nearestEnemyPlanet = null;
+				Planet nearestFriendlyPlanet = null;
+				Planet friendlyClosestToEnemy = null;
+				List<Planet> closerPlanets = new ArrayList<Planet>();
+
+				for (Planet enemyPlan : pw.EnemyPlanets())
+				{
+					int currDistance = pw.Distance(pr, enemyPlan.PlanetID());
+					if (leastDistance > currDistance)
+					{
+						nearestEnemyPlanet = enemyPlan;
+						leastDistance = currDistance;
+					}
+				}
+				if (nearestEnemyPlanet == null)
+				{
 					continue;
-				} 
-				else { 
-					int leastDist=100; 
-					Planet closestFront = null; 
-					for(Planet front:frontline ){ 
-						if(pw.Distance(pr, front.PlanetID())< leastDist){
-							leastDist= pw.Distance(pr, front.PlanetID()); closestFront=front;
-						} 
-					} 
+				}
+				else
+				{
+					int friendlyDistance;
+					for (Planet friendlyPlanet : pw.MyPlanets())
+					{
+						friendlyDistance = pw.Distance(
+								friendlyPlanet.PlanetID(), pr);
+						if (pw.Distance(friendlyPlanet.PlanetID(),
+								nearestEnemyPlanet.PlanetID()) < leastDistance)
+						{
+							if (friendlyDistance < leastDistance)
+							{
+								closerPlanets.add(friendlyPlanet);
+							}
+						}
+					}
+
+					for (int frontPlanet : gt.newFrontIDs)
+					{
+						friendlyDistance = pw.Distance(frontPlanet, pr);
+						if (pw.Distance(frontPlanet,
+								nearestEnemyPlanet.PlanetID()) < leastDistance)
+						{
+							if (friendlyDistance < leastDistance)
+							{
+								Planet mp = pw.GetPlanet(frontPlanet);
+								closerPlanets.add(mp);
+							}
+						}
+					}
+				}
+				if (!closerPlanets.isEmpty())
+				{
+					int shortestFDistance = 100;
+					int shortestEDistance = 100;
+
+					for (Planet cp : closerPlanets)
+					{
+						int currDistance = pw.Distance(
+								nearestEnemyPlanet.PlanetID(), cp.PlanetID());
+						if (shortestEDistance > currDistance)
+						{
+							shortestEDistance = currDistance;
+							friendlyClosestToEnemy = cp;
+						}
+
+						currDistance = pw.Distance(pr, cp.PlanetID());
+						if (shortestFDistance > currDistance)
+						{
+							shortestFDistance = currDistance;
+							nearestFriendlyPlanet = cp;
+						}
+					}
 					int numShipsPR = planReserve.get(pr);
-			  
-					if(closestFront!=null && numShipsPR >0 &&
-							gt.Future.get(closestFront
-							.PlanetID()).Timeline[leastDist].owner==1){ 
-						pw.moveSplitter(gt,pw.GetPlanet(pr), closestFront , numShipsPR); 
-					} 
-				} 
+					if (nearestFriendlyPlanet != null && numShipsPR > 0)
+					{
+						int ShortWay = pw.Distance(pr,
+								friendlyClosestToEnemy.PlanetID());
+						int LongWay = pw.Distance(pr,
+								nearestFriendlyPlanet.PlanetID())
+								+ pw.Distance(nearestEnemyPlanet.PlanetID(),
+										nearestFriendlyPlanet.PlanetID());
+
+						if ((ShortWay * 1.50) > LongWay
+								&& gt.Future.get(nearestFriendlyPlanet
+										.PlanetID()).Timeline[ShortWay].owner == 1)
+						{
+							pw.moveSplitter(gt, pw.GetPlanet(pr),
+									nearestFriendlyPlanet, numShipsPR);
+						}
+						else if (gt.Future
+								.get(nearestFriendlyPlanet.PlanetID()).Timeline[LongWay].owner == 1)
+						{
+							pw.moveSplitter(gt, pw.GetPlanet(pr),
+									friendlyClosestToEnemy, numShipsPR);
+						}
+
+					}
+				}
 			}
-			 
-			/*
-			 * for (int pr : planReserve.keySet()) {
-			 * 
-			 * int leastDistance = 100; Planet nearestEnemyPlanet = null; Planet
-			 * nearestFriendlyPlanet = null; Planet friendlyClosestToEnemy =
-			 * null; List<Planet> closerPlanets = new ArrayList<Planet>();
-			 * 
-			 * for (Planet enemyPlan : pw.EnemyPlanets()) { int currDistance =
-			 * pw.Distance(pr, enemyPlan.PlanetID()); if (leastDistance >
-			 * currDistance) { nearestEnemyPlanet = enemyPlan; leastDistance =
-			 * currDistance; } } if (nearestEnemyPlanet == null) { continue; }
-			 * else { int friendlyDistance; for (Planet friendlyPlanet :
-			 * pw.MyPlanets()) { friendlyDistance = pw.Distance(
-			 * friendlyPlanet.PlanetID(), pr); if
-			 * (pw.Distance(friendlyPlanet.PlanetID(),
-			 * nearestEnemyPlanet.PlanetID()) < leastDistance) { if
-			 * (friendlyDistance < leastDistance) {
-			 * closerPlanets.add(friendlyPlanet); } } }
-			 * 
-			 * for (int frontPlanet : gt.newFrontIDs) { friendlyDistance =
-			 * pw.Distance(frontPlanet, pr); if (pw.Distance(frontPlanet,
-			 * nearestEnemyPlanet.PlanetID()) < leastDistance) { if
-			 * (friendlyDistance < leastDistance) { Planet mp =
-			 * pw.GetPlanet(frontPlanet); closerPlanets.add(mp); } } } } if
-			 * (!closerPlanets.isEmpty()) { int shortestFDistance = 100; int
-			 * shortestEDistance = 100;
-			 * 
-			 * for (Planet cp : closerPlanets) { int currDistance = pw.Distance(
-			 * nearestEnemyPlanet.PlanetID(), cp.PlanetID()); if
-			 * (shortestEDistance > currDistance) { shortestEDistance =
-			 * currDistance; friendlyClosestToEnemy = cp; }
-			 * 
-			 * currDistance = pw.Distance(pr, cp.PlanetID()); if
-			 * (shortestFDistance > currDistance) { shortestFDistance =
-			 * currDistance; nearestFriendlyPlanet = cp; } } int numShipsPR =
-			 * planReserve.get(pr); if (nearestFriendlyPlanet != null &&
-			 * numShipsPR > 0) { int ShortWay = pw.Distance(pr,
-			 * friendlyClosestToEnemy.PlanetID()); int LongWay = pw.Distance(pr,
-			 * nearestFriendlyPlanet.PlanetID()) +
-			 * pw.Distance(nearestEnemyPlanet.PlanetID(),
-			 * nearestFriendlyPlanet.PlanetID());
-			 * 
-			 * if ((ShortWay * 1.50) > LongWay &&
-			 * gt.Future.get(nearestFriendlyPlanet
-			 * .PlanetID()).Timeline[ShortWay].owner == 1) { pw.moveSplitter(gt,
-			 * pw.GetPlanet(pr), nearestFriendlyPlanet, numShipsPR); } else if
-			 * (gt.Future
-			 * .get(nearestFriendlyPlanet.PlanetID()).Timeline[LongWay].owner ==
-			 * 1) { pw.moveSplitter(gt, pw.GetPlanet(pr),
-			 * friendlyClosestToEnemy, numShipsPR); }
-			 * 
-			 * } } }
-			 */
+
 		}
 		// TODO Advanced Move Splitter
 
