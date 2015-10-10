@@ -4,14 +4,14 @@ public class DefenseTasks implements Comparable<Object>
 	int numShips;
 	int turnsRemaining;
 
-	public DefenseTasks()
+	DefenseTasks()
 	{
 		planetID = -1;
 		numShips = 0;
 		turnsRemaining = -1;
 	}
 
-	public DefenseTasks(int planetID, int turnsRemaining, int numShips)
+	DefenseTasks(int planetID, int turnsRemaining, int numShips)
 	{
 		this.planetID = planetID;
 		this.numShips = numShips;
@@ -24,8 +24,13 @@ public class DefenseTasks implements Comparable<Object>
 		return this.turnsRemaining - anotherTask.turnsRemaining;
 	}
 
-	public void RemoveShips(int amount)
+	void RemoveShips(int amount)
 	{
 		numShips -= amount;
+	}
+	
+	void print()
+	{
+		System.err.println(planetID + " " + numShips + " " + turnsRemaining);
 	}
 }

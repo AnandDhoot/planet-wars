@@ -103,130 +103,23 @@ public class MyBot
 		else
 		{
 			List<DefenseTasks> currentDefenseTasks = new ArrayList<DefenseTasks>();
-			HashMap<Integer, Integer> planReserve = new HashMap<Integer, Integer>();
-			for (Planet p : pw.MyPlanets())
-			{
-				List<PlanetThreat> incomingThreats = new ArrayList<PlanetThreat>();
-				for (Fleet ef : pw.EnemyFleets())
-				{
-					if (p.PlanetID() == ef.DestinationPlanet())
-					{
-						int turnsRemaining = ef.TurnsRemaining();
-						int numShips = ef.NumShips();
-						boolean foundThreat = false;
-						for (PlanetThreat pt : incomingThreats)
-						{
-							if (pt.turnsRemaining == turnsRemaining)
-							{
-								pt.AddShips(numShips);
-								foundThreat = true;
-								break;
-							}
-						}
-						if (foundThreat == false)
-						{
-							incomingThreats.add(new PlanetThreat(
-									turnsRemaining, numShips));
-						}
-					}
-				}
-				if (!incomingThreats.isEmpty())
-				{
-					Collections.sort(incomingThreats);
-					int turnProcessed = 0;
-					int startingExcessShips = 0;
-					int currentExcessShips = 0;
-					for (PlanetThreat pt : incomingThreats)
-					{
-						int turnsRemaining = pt.turnsRemaining;
-						int reinforcementShips = 0;
-						for (Fleet mf : pw.MyFleets())
-						{
-							if (p.PlanetID() == mf.DestinationPlanet()
-									&& mf.TurnsRemaining() > turnProcessed
-									&& mf.TurnsRemaining() <= turnsRemaining)
-							{
-								reinforcementShips += mf.NumShips();
-							}
-						}
-						if (turnProcessed == 0)
-						{
-							reinforcementShips += (turnsRemaining * p
-									.GrowthRate());
-							if (reinforcementShips >= pt.numShips)
-							{
-								startingExcessShips = p.NumShips();
-								currentExcessShips = (reinforcementShips - pt.numShips);
-							}
-							else
-							{
-								if ((reinforcementShips + p.NumShips()) >= pt.numShips)
-								{
-									startingExcessShips = p.NumShips()
-											- (pt.numShips - reinforcementShips);
-									currentExcessShips = startingExcessShips;
-								}
-								else
-								{
-									int shortfall = pt.numShips
-											- (reinforcementShips + p
-													.NumShips());
-									currentDefenseTasks.add(new DefenseTasks(p
-											.PlanetID(), turnsRemaining,
-											shortfall));
-								}
-							}
-						}
-						else
-						{
-							int homeDefense = ((turnsRemaining - turnProcessed) * p
-									.GrowthRate())
-									+ currentExcessShips
-									+ reinforcementShips;
-							int shortfall = pt.numShips - homeDefense;
-
-							if (shortfall > 0)
-							{
-								currentDefenseTasks
-										.add(new DefenseTasks(p.PlanetID(),
-												turnsRemaining, shortfall));
-								currentExcessShips = 0;
-								startingExcessShips = currentExcessShips;
-
-							}
-							else if (shortfall <= 0)
-							{
-								currentExcessShips = homeDefense - pt.numShips;
-								if (startingExcessShips > currentExcessShips)
-								{
-									startingExcessShips = currentExcessShips;
-								}
-							}
-						}
-						turnProcessed = turnsRemaining;
-					}
-					if (startingExcessShips > 0)
-					{
-						planReserve.put(p.PlanetID(), startingExcessShips);
-					}
-				}
-				else
-				{
-					planReserve.put(p.PlanetID(), p.NumShips());
-				}
-			}
-
+			HashMap<Integer, Integer> planReserve = new HashMap<Integer, Integer>();			
+			
 			gt.printTimeline();
 			for (Planet p : pw.MyPlanets())
 			{
-				if (gt.Future.get(p.PlanetID()).getMinimum() != planReserve
-						.get(p.PlanetID()))
-					System.err.println(p.PlanetID() + " "
-							+ gt.Future.get(p.PlanetID()).getMinimum() + " "
-							+ planReserve.get(p.PlanetID()));
-//				planReserve.put(p.PlanetID(), gt.Future.get(p.PlanetID()).getMinimum());
+				Integer minVal = gt.Future.get(p.PlanetID()).getMinimum();
+				if (gt.Future.get(p.PlanetID()).numOwnerChanges() != 0)
+					minVal = 0;
+				else
+					planReserve.put(p.PlanetID(), minVal);
 			}
 
+			for(Planet p : pw.Planets())
+			{
+				currentDefenseTasks.addAll(gt.Future.get(p.PlanetID()).addDefenseTasks());
+			}
+			
 			// try matching defense needs with available ships
 			// currently works on a first come, first served basis
 			// could be improved by prioritizing the defense of different

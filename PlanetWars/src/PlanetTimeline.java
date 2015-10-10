@@ -1,4 +1,6 @@
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlanetTimeline
 {
@@ -75,20 +77,92 @@ public class PlanetTimeline
 		}
 	}
 
+	Integer getFinalOwner()
+	{
+		return Timeline[Timeline.length - 1].owner;
+	}
+
+	Integer numOwnerChanges()
+	{
+		Integer own = Timeline[0].owner;
+		Integer count = 0;
+		Integer oldOwner;
+		for (int i = 1; i < Timeline.length; i++)
+		{
+			oldOwner = own;
+			own = Timeline[i].owner;
+			if (own != oldOwner)
+			{
+				count++;
+			}
+		}
+		return count;
+	}
+
+	Integer getLastOwnerChange()
+	{
+		Integer own = Timeline[0].owner;
+		Integer oldOwner;
+		Integer lastOwnerChange = 0;
+		for (int i = 1; i < Timeline.length; i++)
+		{
+			oldOwner = own;
+			own = Timeline[i].owner;
+			if (own != oldOwner)
+			{
+				lastOwnerChange = i;
+			}
+		}
+		return lastOwnerChange;
+	}
+
 	Integer getMinimum()
 	{
 		Integer val = Integer.MAX_VALUE;
-		Integer own = Timeline[0].owner;
-		for (int i = 0; i < Timeline.length; i++)
-		{
-			if (Timeline[i].owner != own)
-				return 0;
-		}
 		for (int i = 0; i < Timeline.length; i++)
 		{
 			if (Timeline[i].numShips < val)
 				val = Timeline[i].numShips;
 		}
 		return val;
+	}
+
+	List<DefenseTasks> addDefenseTasks()
+	{
+		Integer lastChange = getLastOwnerChange();
+		List<DefenseTasks> dt = new ArrayList<DefenseTasks>();
+		if (getFinalOwner() == 2)
+		{
+			if (numOwnerChanges() > 0 && Timeline[lastChange - 1].owner == 1)
+			{
+				DefenseTasks task = new DefenseTasks(Timeline[0].planetID,
+						lastChange, Timeline[lastChange].numShips);
+				dt.add(task);
+
+				for (int i = lastChange + 1; i < Timeline.length; i++)
+				{
+					if (Timeline[i].numShips - Timeline[i - 1].numShips > Timeline[i].growthRate)
+					{
+						// TODO - Check if planet actually gets captured. If
+						// yes, add ( - Timeline[i].growthRate)
+						DefenseTasks task1 = new DefenseTasks(
+								Timeline[0].planetID, i, Timeline[i].numShips
+										- Timeline[i - 1].numShips);
+						dt.add(task1);
+					}
+				}
+			}
+		}
+
+		// if (Timeline[0].planetID == 0)
+		// {
+		// System.err.println("---" + getFinalOwner() + " "
+		// + numOwnerChanges() + " " + getLastOwnerChange());
+		// for (DefenseTasks d : dt)
+		// d.print();
+		// System.err.println("---");
+		// }
+
+		return dt;
 	}
 }
