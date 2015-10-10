@@ -154,15 +154,6 @@ public class PlanetTimeline
 			}
 		}
 
-		// if (Timeline[0].planetID == 0)
-		// {
-		// System.err.println("---" + getFinalOwner() + " "
-		// + numOwnerChanges() + " " + getLastOwnerChange());
-		// for (DefenseTasks d : dt)
-		// d.print();
-		// System.err.println("---");
-		// }
-
 		return dt;
 	}
 }
