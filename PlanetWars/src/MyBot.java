@@ -304,12 +304,8 @@ public class MyBot
 							double score = dest.GrowthRate()
 									* (100 - pw.Distance(source,
 											dest.PlanetID())) - requiredShips;
-							if (dest.Owner() == 0 && turnCounter<20)
-								score = 1.5*dest.GrowthRate()
-										* (100 - pw.Distance(source,
-												dest.PlanetID())) - requiredShips;
-							if (dest.Owner() == 2&&turnCounter>50)
-								score = 2.5*dest.GrowthRate()
+							if (dest.Owner() == 2)
+								score = 2*dest.GrowthRate()
 										* (100 - pw.Distance(source,
 												dest.PlanetID())) - requiredShips;
 							if (score > bestScore)
@@ -324,7 +320,7 @@ public class MyBot
 
 				}
 				if (finalDest != null)
-				{	if((turnCounter<40&&bestScore>0)||(turnCounter>=40)){
+				{	if(true){
 					planReserve.put(source, planReserve.get(source) - finShips);
 					gt.Future.get(finalDest.PlanetID()).receiveFleet(
 							new Fleet(1, finShips, source,
@@ -394,7 +390,7 @@ public class MyBot
 					}
 					int numShipsPR = planReserve.get(pr);
 
-					if(closestFront!=null && numShipsPR >0){
+					if(closestFront!=null && numShipsPR >0 && gt.Future.get(closestFront.PlanetID()).Timeline[leastDist].owner==1){
 						pw.IssueOrder(pw.GetPlanet(pr), closestFront , numShipsPR);
 					}
 				}
