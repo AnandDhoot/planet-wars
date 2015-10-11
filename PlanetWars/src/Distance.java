@@ -4,7 +4,6 @@ public class Distance implements Comparable<Distance>{
 	private int destination;
 	private int source;
 	public Distance(int source, int destination, int distance) {
-		super();
 		this.source = source;
 		this.destination = destination;
 		this.distance = distance;

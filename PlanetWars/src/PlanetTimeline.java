@@ -24,14 +24,14 @@ public class PlanetTimeline
 			}
 		}
 	}
-	
+
 	PlanetTimeline(PlanetState[] ps)
 	{
 		Timeline = new PlanetState[ps.length];
-		for(int i=0; i<ps.length; i++)
+		for (int i = 0; i < ps.length; i++)
 		{
-			Timeline[i] = new PlanetState(ps[i].planetID, ps[i].owner, ps[i].numShips,
-					ps[i].growthRate);
+			Timeline[i] = new PlanetState(ps[i].planetID, ps[i].owner,
+					ps[i].numShips, ps[i].growthRate);
 		}
 	}
 
@@ -166,8 +166,10 @@ public class PlanetTimeline
 
 		return dt;
 	}
-	PlanetTimeline copy(){
-		PlanetTimeline pt= new PlanetTimeline(Timeline);
+	
+	PlanetTimeline copy()
+	{
+		PlanetTimeline pt = new PlanetTimeline(Timeline);
 		return pt;
 	}
 }
