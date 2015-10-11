@@ -1,18 +1,18 @@
 public class PlanetThreat implements Comparable<Object>
 {
-	int turnsRemaining;
 	int numShips;
+	int turnsRemaining;
 
-	public PlanetThreat()
+	PlanetThreat()
 	{
-		turnsRemaining = -1;
 		numShips = 0;
+		turnsRemaining = -1;
 	}
 
-	public PlanetThreat(int turnsRemaining, int numShips)
+	PlanetThreat(int turnsRemaining, int numShips)
 	{
-		this.turnsRemaining = turnsRemaining;
 		this.numShips = numShips;
+		this.turnsRemaining = turnsRemaining;
 	}
 
 	public int compareTo(Object obj)
@@ -21,7 +21,7 @@ public class PlanetThreat implements Comparable<Object>
 		return this.turnsRemaining - anotherThreat.turnsRemaining;
 	}
 
-	public void AddShips(int amount)
+	void AddShips(int amount)
 	{
 		numShips += amount;
 	}

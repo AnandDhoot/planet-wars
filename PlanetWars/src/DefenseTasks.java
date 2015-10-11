@@ -28,7 +28,7 @@ public class DefenseTasks implements Comparable<Object>
 	{
 		numShips -= amount;
 	}
-	
+
 	void print()
 	{
 		System.err.println(planetID + " " + numShips + " " + turnsRemaining);

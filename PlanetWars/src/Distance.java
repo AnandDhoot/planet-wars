@@ -1,27 +1,35 @@
-public class Distance implements Comparable<Distance>{
+public class Distance implements Comparable<Distance>
+{
 
 	private int distance;
 	private int destination;
 	private int source;
-	public Distance(int source, int destination, int distance) {
+
+	Distance(int source, int destination, int distance)
+	{
 		this.source = source;
 		this.destination = destination;
 		this.distance = distance;
 	}
 
 	@Override
-	public int compareTo(Distance other) {
-		return distance-other.distance;
+	public int compareTo(Distance other)
+	{
+		return distance - other.distance;
 	}
 
-	public int getDestination() {
+	int getDestination()
+	{
 		return destination;
 	}
-	public int getSource() {
+
+	int getSource()
+	{
 		return source;
 	}
 
-	public int getDistance() {
+	int getDistance()
+	{
 		return distance;
 	}
 

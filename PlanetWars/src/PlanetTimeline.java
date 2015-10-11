@@ -37,8 +37,6 @@ public class PlanetTimeline
 
 	void receiveFleet(Fleet f, int timeRemaining)
 	{
-		// TODO - Assumes timeRemaining > 0, always
-		// Set owner, Number of Ships for all times after timeRemaining
 		boolean inc = (f.Owner() == Timeline[timeRemaining].owner);
 		if (inc)
 			Timeline[timeRemaining].numShips += f.NumShips();
@@ -153,8 +151,6 @@ public class PlanetTimeline
 				{
 					if (Timeline[i].numShips - Timeline[i - 1].numShips > Timeline[i].growthRate)
 					{
-						// TODO - Check if planet actually gets captured. If
-						// yes, add ( - Timeline[i].growthRate)
 						DefenseTasks task1 = new DefenseTasks(
 								Timeline[0].planetID, i, Timeline[i].numShips
 										- Timeline[i - 1].numShips);
@@ -166,7 +162,7 @@ public class PlanetTimeline
 
 		return dt;
 	}
-	
+
 	PlanetTimeline copy()
 	{
 		PlanetTimeline pt = new PlanetTimeline(Timeline);

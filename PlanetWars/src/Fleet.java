@@ -1,4 +1,3 @@
-
 @SuppressWarnings("rawtypes")
 public class Fleet implements Comparable, Cloneable
 {
