@@ -11,27 +11,27 @@ public class MyBot
 	private static int turnCounter = 0;
 	static AllDistance distData = new AllDistance();
 
-	public static ArrayList<Planet> knapsack(ArrayList<Planet> planets,
-			int maxWeight)
+	public static ArrayList<Planet> knapsack(PlanetWars pw,ArrayList<Planet> planets,int maxWeight)
 	{
-		ArrayList<Integer> weights = new ArrayList<Integer>();
-		ArrayList<Integer> values = new ArrayList<Integer>();
 
-		// solve 0-1 knapsack problem
+		ArrayList<Integer> values = new ArrayList<Integer>();
+		ArrayList<Integer> weights = new ArrayList<Integer>();
+
+
 		for (Planet p : planets)
 		{
-			// here weights and values are numShips and growthRate respectively
-			// TODO change value to also take into account distance and test
 			weights.add(p.NumShips() + 1);
-			values.add(p.GrowthRate());
+			values.add((100-pw.Distance(pw.MyPlanets().get(0).PlanetID(),p.PlanetID()))*p.GrowthRate());
 		}
 
 		int[][] K = new int[weights.size() + 1][maxWeight];
-
+		//Init DP Array
 		for (int i = 0; i < maxWeight; i++)
 		{
 			K[0][i] = 0;
 		}
+
+		// Main Lopp DP
 
 		for (int k = 1; k <= weights.size(); k++)
 		{
@@ -39,36 +39,29 @@ public class MyBot
 			{
 
 				if (y < weights.get(k - 1))
-				{
 					K[k][y - 1] = K[k - 1][y - 1];
-				}
 				else if (y > weights.get(k - 1))
-				{
-					K[k][y - 1] = Math.max(K[k - 1][y - 1], K[k - 1][y - 1
-							- weights.get(k - 1)]
-							+ values.get(k - 1));
-				}
+					K[k][y - 1] = Math.max(K[k - 1][y - 1], K[k - 1][y - 1 - weights.get(k - 1)] + values.get(k - 1));
 				else
 					K[k][y - 1] = Math.max(K[k - 1][y - 1], values.get(k - 1));
 			}
 		}
 
-		// get the planets in the solution
+		// extract planets in the solution
 		int i = weights.size();
 		int currentW = maxWeight - 1;
-		ArrayList<Planet> markedPlanets = new ArrayList<Planet>();
+		ArrayList<Planet> targetPlanets = new ArrayList<Planet>();
 
 		while ((i > 0) && (currentW >= 0))
 		{
-			if (((i == 0) && (K[i][currentW] > 0))
-					|| (K[i][currentW] != K[i - 1][currentW]))
+			if (((i == 0) && (K[i][currentW] > 0))|| (K[i][currentW] != K[i - 1][currentW]))
 			{
-				markedPlanets.add(planets.get(i - 1));
+				targetPlanets.add(planets.get(i - 1));
 				currentW = currentW - weights.get(i - 1);
 			}
 			i--;
 		}
-		return markedPlanets;
+		return targetPlanets;
 	}
 
 	static void DoTurn(PlanetWars pw) throws IOException
@@ -96,7 +89,7 @@ public class MyBot
 						p1.PlanetID(), enemy.PlanetID()))
 					planets.add(p1);
 
-			ArrayList<Planet> toCapture = knapsack(planets, maxWeight);
+			ArrayList<Planet> toCapture = knapsack(pw,planets, maxWeight);
 			for (Planet p : toCapture)
 			{
 				pw.moveSplitter(gt, my, p, p.NumShips() + 1);
@@ -224,6 +217,12 @@ public class MyBot
 //				reckless = true;
 //			}
 //			
+						boolean reckless = false;
+			if (pw.Production(1) < (pw.Production(2)) && pw.NumShips(1) > (pw.NumShips(2))) {
+				reckless = true;
+			}
+			//Multi Attack
+//			if(turnCounter>200){
 //			List<Planet> pList = new ArrayList<Planet>(pw.NotMyPlanets());
 //			while (true)
 //			{
@@ -336,8 +335,6 @@ public class MyBot
 //				System.err.println("Evaluating");
 //
 //				// execute best attack
-//				if(sanityCheck*3 > bestScore)
-//				{
 //					for (int i : bestAttack.keySet())
 //					{
 //						System.err.println(pw.GetPlanet(i).NumShips() + " "
@@ -352,14 +349,10 @@ public class MyBot
 //												i, bestDest.PlanetID())),
 //								pw.Distance(i, bestDest.PlanetID()));
 //					}
-//				}
 //				pList.remove(bestDest);
-//			}
+//			}}
 
-			boolean reckless = false;
-			if (pw.Production(1) < (pw.Production(2)) && pw.NumShips(1) > (pw.NumShips(2))) {
-				reckless = true;
-			}
+
 			for (int source : planReserve.keySet())
 			{
 				double bestScore = Double.MIN_VALUE;
@@ -616,13 +609,13 @@ public class MyBot
 
 						if ((ShortWay * 1.50) > LongWay
 								&& gt.Future.get(nearestFriendlyPlanet
-										.PlanetID()).Timeline[ShortWay].owner == 1)
+										.PlanetID()).Timeline[ShortWay+1].owner == 1)
 						{
 							pw.moveSplitter(gt, pw.GetPlanet(pr),
 									nearestFriendlyPlanet, numShipsPR);
 						}
 						else if (gt.Future
-								.get(nearestFriendlyPlanet.PlanetID()).Timeline[LongWay].owner == 1)
+								.get(nearestFriendlyPlanet.PlanetID()).Timeline[LongWay+1].owner == 1)
 						{
 							pw.moveSplitter(gt, pw.GetPlanet(pr),
 									friendlyClosestToEnemy, numShipsPR);
