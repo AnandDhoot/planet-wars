@@ -381,7 +381,7 @@ public class MyBot
 							pw.moveSplitter(gt, pw.GetPlanet(pr),
 									nearestFriendly, numShipsPR);
 						}
-						else if (gt.Future.get(nearestFriendly.PlanetID()).Timeline[LongWay + 1].owner == 1)
+						else if (gt.Future.get(friendlyClosestToEnemy.PlanetID()).Timeline[LongWay + 1].owner == 1)
 						{
 							pw.moveSplitter(gt, pw.GetPlanet(pr),
 									friendlyClosestToEnemy, numShipsPR);
